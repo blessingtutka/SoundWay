@@ -1,0 +1,32 @@
+{
+  "name": "soundway",
+  "displayName": "Soundway",
+  "version": "1.0.0",
+  "react-native": {
+    "newArchEnabled": true
+  },
+  "android": {
+    "package": "com.blessingtutka.soundway",
+    "permissions": [
+      "android.permission.CAMERA",
+      "android.permission.READ_EXTERNAL_STORAGE"
+    ],
+    "adaptiveIcon": {
+      "foregroundImage": "./src/assets/images/icon.png",
+      "backgroundColor": "#000000"
+    },
+    "edgeToEdgeEnabled": true
+  },
+  "ios": {
+    "bundleIdentifier": "com.blessingtutka.soundway",
+    "supportsTablet": true,
+    "infoPlist": {
+      "NSCameraUsageDescription": "This app uses the camera to take photos or videos as part of its core functionality.",
+      "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select or upload images.",
+      "ITSAppUsesNonExemptEncryption": false
+    }
+  },
+  "assets": ["./src/assets/images/"],
+  "orientation": "portrait",
+  "userInterfaceStyle": "automatic"
+}
