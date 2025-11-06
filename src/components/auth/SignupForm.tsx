@@ -224,7 +224,7 @@ export function SignUpForm({ onSubmit, isLoading }: { onSubmit: (data: SignupFor
       {/* Switch to Login */}
       <View className='flex-row justify-center items-center mt-4'>
         <Text className='text-gray-400'>Already have an account? </Text>
-        <TouchableOpacity onPress={() => router.replace('/login')}>
+        <TouchableOpacity onPress={() => router.push('/login')}>
           <Text className='text-blue-400 font-medium'>Sign In</Text>
         </TouchableOpacity>
       </View>

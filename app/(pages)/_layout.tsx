@@ -15,7 +15,7 @@ export default function PagesLayout() {
         options={{
           title: 'Login',
           headerLeft: () => (
-            <Pressable onPress={() => router.replace('/')} className='px-2'>
+            <Pressable onPress={() => router.back()} className='px-2'>
               <ArrowLeft size={24} color='white' />
             </Pressable>
           ),
@@ -28,7 +28,7 @@ export default function PagesLayout() {
         options={{
           title: 'Signup',
           headerLeft: () => (
-            <Pressable onPress={() => router.replace('/')} className='px-2'>
+            <Pressable onPress={() => router.back()} className='px-2'>
               <ArrowLeft size={24} color='white' />
             </Pressable>
           ),
@@ -41,7 +41,7 @@ export default function PagesLayout() {
         options={{
           title: 'Reset Password Request',
           headerLeft: () => (
-            <Pressable onPress={() => router.replace('/')} className='px-2'>
+            <Pressable onPress={() => router.back()} className='px-2'>
               <ArrowLeft size={24} color='white' />
             </Pressable>
           ),

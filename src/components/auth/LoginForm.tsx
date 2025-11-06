@@ -112,7 +112,7 @@ export function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: LoginFormD
       />
 
       {/* Forgot Password Link */}
-      <TouchableOpacity onPress={() => router.replace('/forgot')} className='self-end'>
+      <TouchableOpacity onPress={() => router.push('/forgot')} className='self-end'>
         <Text className='text-blue-400 text-sm font-medium'>Forgot Password?</Text>
       </TouchableOpacity>
 
@@ -138,7 +138,7 @@ export function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: LoginFormD
       {/* Switch to Sign Up */}
       <View className='flex-row justify-center items-center mt-4'>
         <Text className='text-gray-400'>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.replace('/signup')}>
+        <TouchableOpacity onPress={() => router.push('/signup')}>
           <Text className='text-blue-400 font-medium'>Sign Up</Text>
         </TouchableOpacity>
       </View>

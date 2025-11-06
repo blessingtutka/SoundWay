@@ -49,7 +49,7 @@ export default function TabLayout() {
 
           tabBarStyle: { display: 'flex' },
           headerLeft: () => (
-            <Pressable onPress={() => router.replace('/profile')} className='px-2'>
+            <Pressable onPress={() => router.push('/profile')} className='px-2'>
               <ArrowLeft size={24} color='white' />
             </Pressable>
           ),

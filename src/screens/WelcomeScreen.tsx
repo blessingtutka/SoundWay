@@ -1,12 +1,24 @@
 import { ScreenLayout } from '@/components/ScreenLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useUser } from '@/providers/UserProvider';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { isLoggedIn, user, isLoading } = useUser();
+
+  if (isLoading) {
+    return (
+      <ScreenLayout>
+        <View className='flex-1 justify-center items-center'>
+          <Text className='text-gray-500 text-base'>Loading...</Text>
+        </View>
+      </ScreenLayout>
+    );
+  }
 
   return (
     <ScreenLayout>
@@ -16,20 +28,28 @@ export default function WelcomeScreen() {
         <View className='flex-col items-center'>
           <Text className='text-3xl font-bold text-[#FDB327]'>Welcome to</Text>
           <Text className='text-5xl font-extrabold text-[#0082f4]'>SoundWay</Text>
-          <Text className='text-base text-[#FFB4A6] mt-1 text-center'>Find your local easly with SoundWay with a great level of assurance</Text>
+          <Text className='text-base text-[#FFB4A6] mt-1 text-center'>Find your local easily with SoundWay with a great level of assurance</Text>
           <Text className='text-[#1DAC5C] font-semibold mt-2 text-center'>With SoundWay: Find your local.</Text>
         </View>
 
-        <Button size='lg' className='main-btn mt-4' onPress={() => router.replace('/login')}>
-          <Text className='text-white font-bold'>Login</Text>
-        </Button>
+        {isLoggedIn ? (
+          <Button size='lg' className='main-btn mt-6' onPress={() => router.navigate('/(tabs)')}>
+            <Text className='text-white font-bold text-lg'>Go to App</Text>
+          </Button>
+        ) : (
+          <>
+            <Button size='lg' className='main-btn mt-6' onPress={() => router.push('/login')}>
+              <Text className='text-white font-bold text-lg'>Login</Text>
+            </Button>
 
-        <View className='flex-row items-center mt-3'>
-          <Text className='text-[#666] text-sm flex-shrink-1'>Don't have an account? </Text>
-          <Pressable onPress={() => router.replace('/signup')}>
-            <Text className='text-[#FE4031] text-sm font-medium'>Sign up</Text>
-          </Pressable>
-        </View>
+            <View className='flex-row items-center mt-3'>
+              <Text className='text-[#666] text-sm flex-shrink-1'>Don't have an account? </Text>
+              <Pressable onPress={() => router.push('/signup')}>
+                <Text className='text-[#FE4031] text-sm font-medium'>Sign up</Text>
+              </Pressable>
+            </View>
+          </>
+        )}
       </Card>
     </ScreenLayout>
   );
