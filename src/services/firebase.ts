@@ -1,17 +1,35 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage';
+import { initializeApp } from 'firebase/app';
+import { getReactNativePersistence, initializeAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-// Firebase is automatically initialized with react-native-firebase
-// Make sure you have google-services.json (Android) and GoogleService-Info.plist (iOS) configured
+const firebaseConfig = {
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
 
-const db = firestore();
-const storageRef = storage();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-// Auth state listener with proper React Native Firebase types
-auth().onAuthStateChanged(async (user: any) => {
-  let sessionTimeout: ReturnType<typeof setTimeout> | null = null;
+// Initialize Firebase services
+
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+// const auth = getauth(app);
+
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Auth state listener
+onAuthStateChanged(auth, async (user) => {
+  let sessionTimeout = null;
 
   if (user === null) {
     if (sessionTimeout) {
@@ -24,16 +42,14 @@ auth().onAuthStateChanged(async (user: any) => {
       const idTokenResult = await user.getIdTokenResult();
       const authTime = idTokenResult.claims.auth_time;
 
-      // Check if auth_time exists and is a valid number
       if (authTime && typeof authTime === 'number') {
         const authTimeMs = authTime * 1000;
-        const sessionDuration = 1000 * 60 * 60 * 24 * 30; // 30 days
+        const sessionDuration = 1000 * 60 * 60 * 24 * 30;
         const millisecondsUntilExpiration = sessionDuration - (Date.now() - authTimeMs);
 
-        // Only set timeout if expiration is in the future
         if (millisecondsUntilExpiration > 0) {
           sessionTimeout = setTimeout(async () => {
-            await auth().signOut();
+            await signOut(auth);
             await AsyncStorage.multiRemove(['user', 'role']);
           }, millisecondsUntilExpiration);
         }
@@ -46,5 +62,4 @@ auth().onAuthStateChanged(async (user: any) => {
   }
 });
 
-export { auth, db, storageRef as storage };
-
+export { auth, db, storage };

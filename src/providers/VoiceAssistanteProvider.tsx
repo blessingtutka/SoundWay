@@ -1,25 +1,11 @@
-/* eslint-disable react-native/split-platform-components */
-import Voice from '@react-native-voice/voice';
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import {
-  AppState,
-  AppStateStatus,
-  PermissionsAndroid,
-  Platform,
-  Vibration,
-} from 'react-native';
-import Config from "react-native-config";
-import Tts from 'react-native-tts';
+import Constants from 'expo-constants';
+import * as Localization from 'expo-localization';
+import * as Speech from 'expo-speech';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { AppState, AppStateStatus, Platform, Vibration } from 'react-native';
 import VoiceCommandManager, { AppFunctionInfo } from '../services/VoiceCommandManager';
 
-// USE AI
-
+// Types
 export interface VoiceCommand {
   intent: string;
   action: string;
@@ -80,110 +66,83 @@ export const VoiceAssistantProvider: React.FC<{ children: React.ReactNode }> = (
   const errorSubscribers = useRef(new Set<(err: string) => void>());
   const appState = useRef(AppState.currentState);
 
-  // 🔧 Initialization
+  const locales = Localization.getLocales();
+  const safeLanguage = locales[0]?.languageTag || 'en-US';
+  const GOOGLE_AI_API_KEY = Constants?.expoConfig?.extra?.GOOGLE_AI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
+
+  // Init
   useEffect(() => {
     const init = async () => {
       try {
-        await requestPermissions();
+        VoiceCommandManager.init(GOOGLE_AI_API_KEY);
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+        setState((s) => ({ ...s, isInitialized: true }));
 
-        Tts.setDefaultRate(0.9);
-        Tts.setDefaultPitch(1.0);
-        Tts.setDefaultLanguage('en-US');
-        Tts.addEventListener('tts-start', () =>
-          setState(s => ({ ...s, isSpeaking: true })),
-        );
-        Tts.addEventListener('tts-finish', () =>
-          setState(s => ({ ...s, isSpeaking: false })),
-        );
-        Tts.addEventListener('tts-error', () =>
-          setState(s => ({ ...s, isSpeaking: false })),
-        );
-
-        Voice.onSpeechStart = () =>
-          setState(s => ({ ...s, isListening: true }));
-        Voice.onSpeechEnd = () =>
-          setState(s => ({ ...s, isListening: false }));
-        Voice.onSpeechResults = onSpeechResults;
-        Voice.onSpeechError = onSpeechError;
-
-        VoiceCommandManager.init(Config.GOOGLE_AI_API_KEY || '');
-
-        AppState.addEventListener('change', handleAppStateChange);
-        setState(s => ({ ...s, isInitialized: true }));
+        return () => subscription.remove();
       } catch (err: any) {
-        setState(s => ({
-          ...s,
-          error: `Init failed: ${err.message}`,
-        }));
+        setState((s) => ({ ...s, error: `Init failed: ${err.message}` }));
       }
     };
-    init();
 
+    const cleanupPromise = init();
     return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-      Tts.removeAllListeners('tts-start');
-      Tts.removeAllListeners('tts-finish');
-      Tts.removeAllListeners('tts-error');
+      cleanupPromise.then((cleanup) => cleanup?.());
     };
   }, []);
 
-  const requestPermissions = async () => {
-    if (Platform.OS === 'android') {
-      const result = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      );
-      if (result !== PermissionsAndroid.RESULTS.GRANTED)
-        throw new Error('Microphone permission denied');
+  // App state
+  const handleAppStateChange = (nextAppState: AppStateStatus) => {
+    if (appState.current.match(/inactive|background/) && nextAppState === 'active' && state.isAlwaysListening) {
+      startListening();
+    }
+    appState.current = nextAppState;
+  };
+
+  // STT Stub
+  const startListening = async () => {
+    if (Platform.OS === 'web' && 'webkitSpeechRecognition' in window) {
+      const recognition = new (window as any).webkitSpeechRecognition();
+      recognition.lang = safeLanguage;
+      recognition.onstart = () => setState((s) => ({ ...s, isListening: true, recognizedText: '' }));
+      recognition.onresult = async (event: any) => {
+        const text = event.results[0][0].transcript;
+        setState((s) => ({ ...s, recognizedText: text, isListening: false }));
+        await processVoiceCommand(text);
+      };
+      recognition.onerror = (err: any) => {
+        setState((s) => ({ ...s, error: err.message, isListening: false }));
+        notifyError(err.message);
+      };
+      recognition.start();
+    } else {
+      await speak('Speech recognition not supported on this device.');
     }
   };
 
-  const handleAppStateChange = (nextAppState: AppStateStatus) => {
-  if (
-    appState.current.match(/inactive|background/) &&
-    nextAppState === 'active' &&
-    state.isAlwaysListening
-  ) {
-    startListening();
-  }
-  appState.current = nextAppState;
-};
-
-  const onSpeechResults = async (e: any) => {
-    const text = e.value?.[0] || '';
-    setState(s => ({ ...s, recognizedText: text }));
-    if (text.trim()) await processVoiceCommand(text);
+  const stopListening = async () => {
+    setState((s) => ({ ...s, isListening: false }));
   };
 
-  const onSpeechError = (e: any) => {
-    const msg = e.error?.message || e.message || 'Unknown speech error';
-    setState(s => ({ ...s, error: msg, isListening: false }));
-    notifyError(msg);
-  };
-
+  // Process command
   const processVoiceCommand = async (text: string) => {
     try {
-      const funcs: AppFunctionInfo[] = Array.from(appFunctions.current.values()).map(f => ({
+      const funcs: AppFunctionInfo[] = Array.from(appFunctions.current.values()).map((f) => ({
         name: f.name,
         description: f.description,
         examples: f.examples,
       }));
 
-      const command = await VoiceCommandManager.processCommand(
-        text,
-        funcs,
-        Object.fromEntries(appContext.current),
-      );
+      const command = await VoiceCommandManager.processCommand(text, funcs, Object.fromEntries(appContext.current));
 
-      setState(s => ({ ...s, lastResponse: command.response }));
+      setState((s) => ({ ...s, lastResponse: command.response }));
       notifyCommand(command);
 
       if (command.executeCommand) await executeCommand(command);
       if (command.response) await speak(command.response);
-
-      Vibration.vibrate(150);
+      Vibration.vibrate(100);
     } catch (err: any) {
       const msg = `Command error: ${err.message}`;
-      setState(s => ({ ...s, error: msg }));
+      setState((s) => ({ ...s, error: msg }));
       notifyError(msg);
       await speak('Sorry, I encountered an error.');
     }
@@ -215,69 +174,38 @@ export const VoiceAssistantProvider: React.FC<{ children: React.ReactNode }> = (
     }
   };
 
-  // 🎤 Voice Control
-  const startListening = async () => {
-    try {
-      await Voice.start('en-US');
-      Vibration.vibrate(100);
-    } catch (err: any) {
-      notifyError(`Start listening failed: ${err.message}`);
-    }
-  };
-
-  const stopListening = async () => {
-    try {
-      await Voice.stop();
-    } catch (err: any) {
-      notifyError(`Stop listening failed: ${err.message}`);
-    }
-  };
-
   const toggleAlwaysListening = async () => {
     const newState = !state.isAlwaysListening;
-    setState(s => ({ ...s, isAlwaysListening: newState }));
-    await speak(
-      newState
-        ? 'Always listening activated. Say assistant to wake me up.'
-        : 'Always listening deactivated.',
-    );
+    setState((s) => ({ ...s, isAlwaysListening: newState }));
+    await speak(newState ? 'Always listening activated.' : 'Always listening deactivated.');
   };
 
-  // 🔊 Speech
-  const speak = async (text: string) => {
-    return new Promise<void>((resolve, reject) => {
-      if (!text) return reject(new Error('Empty TTS input'));
-      const onFinish = () => {
-        cleanup();
-        resolve();
-      };
-      const onError = (err: any) => {
-        cleanup();
-        reject(err);
-      };
-      const cleanup = () => {
-        Tts.removeEventListener('tts-finish', onFinish);
-        Tts.removeEventListener('tts-error', onError);
-      };
-      Tts.addEventListener('tts-finish', onFinish);
-      Tts.addEventListener('tts-error', onError);
-      Tts.speak(text);
+  // Expo Speech (TTS)
+  const speak = async (text: string) =>
+    new Promise<void>((resolve, reject) => {
+      if (!text) return reject(new Error('Empty text'));
+      Speech.speak(text, {
+        language: safeLanguage,
+        rate: 0.9,
+        onDone: () => resolve(),
+        onError: (err: any) => reject(err),
+      });
+      setState((s) => ({ ...s, isSpeaking: true }));
     });
+
+  const stopSpeaking = () => {
+    Speech.stop();
+    setState((s) => ({ ...s, isSpeaking: false }));
   };
 
-  const stopSpeaking = () => Tts.stop();
-
-  // 📦 App Functions & Context
-  const registerAppFunction = (name: string, fn: AppFunction) =>
-    appFunctions.current.set(name, fn);
-  const unregisterAppFunction = (name: string) =>
-    appFunctions.current.delete(name);
+  // Context / function registry
+  const registerAppFunction = (name: string, fn: AppFunction) => appFunctions.current.set(name, fn);
+  const unregisterAppFunction = (name: string) => appFunctions.current.delete(name);
   const getAvailableFunctions = () => new Map(appFunctions.current);
-  const updateContext = (key: string, value: any) =>
-    appContext.current.set(key, value);
+  const updateContext = (key: string, value: any) => appContext.current.set(key, value);
   const getContext = (key: string) => appContext.current.get(key);
 
-  // 📡 Event Subscription
+  // Event subscriptions
   const subscribeToCommands = (cb: (cmd: VoiceCommand) => void) => {
     commandSubscribers.current.add(cb);
     return () => commandSubscribers.current.delete(cb);
@@ -286,10 +214,8 @@ export const VoiceAssistantProvider: React.FC<{ children: React.ReactNode }> = (
     errorSubscribers.current.add(cb);
     return () => errorSubscribers.current.delete(cb);
   };
-  const notifyCommand = (cmd: VoiceCommand) =>
-    commandSubscribers.current.forEach(cb => cb(cmd));
-  const notifyError = (err: string) =>
-    errorSubscribers.current.forEach(cb => cb(err));
+  const notifyCommand = (cmd: VoiceCommand) => commandSubscribers.current.forEach((cb) => cb(cmd));
+  const notifyError = (err: string) => errorSubscribers.current.forEach((cb) => cb(err));
 
   return (
     <VoiceAssistantContext.Provider
@@ -307,7 +233,8 @@ export const VoiceAssistantProvider: React.FC<{ children: React.ReactNode }> = (
         getContext,
         subscribeToCommands,
         subscribeToErrors,
-      }}>
+      }}
+    >
       {children}
     </VoiceAssistantContext.Provider>
   );

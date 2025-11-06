@@ -2,23 +2,22 @@ import { SignUpForm } from '@/components/auth/SignupForm';
 import { ScreenLayout } from '@/components/ScreenLayout';
 import { Card } from '@/components/ui/card';
 import { signUpUser } from '@/services/authServices';
-import { SignupFormData } from '@/utils/validators';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 
 export default function SignUpScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigation = useNavigation();
+  const router = useRouter();
 
-  const handleSignUpSubmit = async (data: SignupFormData) => {
+  const handleSignUpSubmit = async (data: any) => {
     setIsLoading(true);
     setError(null);
     try {
       await signUpUser(data.email, data.password, data.displayName);
       Alert.alert('Success', "You're registered, please verify your email");
-      navigation.navigate('Login' as never);
+      router.replace('/login');
     } catch (err: any) {
       setError(err.message || 'Something went wrong during sign up');
       Alert.alert('Error', err.message);
@@ -29,18 +28,14 @@ export default function SignUpScreen() {
 
   return (
     <ScreenLayout>
-      <Card className="w-full max-w-md bg-[#121212] rounded-lg shadow-sm">
-        <View className="flex-col justify-center">
-          <Text className={`font-medium text-blue-400 text-3xl`}>
-            Create Account
-          </Text>
-          <Text className={`font-medium text-gray-500 text-base`}>
-            Sign up to get started
-          </Text>
+      <Card className='w-full max-w-md bg-[#121212] rounded-lg shadow-sm'>
+        <View className='flex-col justify-center'>
+          <Text className={`font-medium text-blue-400 text-3xl`}>Create Account</Text>
+          <Text className={`font-medium text-gray-500 text-base`}>Sign up to get started</Text>
         </View>
 
-        <View className="p-6">
-          {error && <Text className="text-red-400 mb-4 text-sm">{error}</Text>}
+        <View className='p-6'>
+          {error && <Text className='text-red-400 mb-4 text-sm'>{error}</Text>}
           <SignUpForm onSubmit={handleSignUpSubmit} isLoading={isLoading} />
         </View>
       </Card>

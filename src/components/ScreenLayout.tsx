@@ -8,7 +8,7 @@ export function ScreenLayout({ children }: { children: React.ReactNode }) {
       resizeMode="cover"
     >
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <View className="flex-1 items-center py-6 px-4">{children}</View>
+        <View className="flex-1 items-center py-4 px-4">{children}</View>
       </ScrollView>
     </ImageBackground>
   );
