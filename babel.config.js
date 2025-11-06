@@ -1,19 +1,19 @@
-module.exports = {
-  presets: [
-    ['module:@react-native/babel-preset', { jsxImportSource: 'nativewind' }],
-    'nativewind/babel',
-  ],
-  ignore: ['**/*.css'],
-  plugins: [
-    [
-      'module-resolver',
-      {
-        root: ['./src'],
-        alias: {
-          '@': './src',
-          'tailwind.config': './tailwind.config.js',
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
+
+    plugins: [
+      [
+        'module-resolver',
+        {
+          root: ['./'],
+          alias: {
+            '@': './src',
+            'tailwind.config': './tailwind.config.js',
+          },
         },
-      },
+      ],
     ],
-  ],
+  };
 };

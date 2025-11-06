@@ -1,32 +1,49 @@
 {
-  "name": "soundway",
-  "displayName": "Soundway",
-  "version": "1.0.0",
-  "react-native": {
-    "newArchEnabled": true
-  },
-  "android": {
-    "package": "com.blessingtutka.soundway",
-    "permissions": [
-      "android.permission.CAMERA",
-      "android.permission.READ_EXTERNAL_STORAGE"
-    ],
-    "adaptiveIcon": {
-      "foregroundImage": "./src/assets/images/icon.png",
-      "backgroundColor": "#000000"
+  "expo": {
+    "name": "soundway",
+    "slug": "soundway",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/icon.png",
+    "scheme": "soundway",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
     },
-    "edgeToEdgeEnabled": true
-  },
-  "ios": {
-    "bundleIdentifier": "com.blessingtutka.soundway",
-    "supportsTablet": true,
-    "infoPlist": {
-      "NSCameraUsageDescription": "This app uses the camera to take photos or videos as part of its core functionality.",
-      "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select or upload images.",
-      "ITSAppUsesNonExemptEncryption": false
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./src/assets/images/icon.png",
+        "backgroundImage": "./src/assets/images/icon.png",
+        "monochromeImage": "./src/assets/images/icon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./src/assets/images/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-maps"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
     }
-  },
-  "assets": ["./src/assets/images/"],
-  "orientation": "portrait",
-  "userInterfaceStyle": "automatic"
+  }
 }
