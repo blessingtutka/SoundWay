@@ -1,18 +1,17 @@
-import firestore from '@react-native-firebase/firestore';
+import { collection, CollectionReference, doc, DocumentReference, Timestamp } from 'firebase/firestore';
+import { db } from './firebase';
 
 export interface User {
   uid: string;
   email: string;
   displayName?: string;
   avatar?: string;
-  createdAt?: any;
-  updatedAt?: any;
-  emailVerified?: Boolean
+  createdAt?: Timestamp | Date;
+  updatedAt?: Timestamp | Date;
+  emailVerified?: boolean;
 }
 
-// Type-safe collection references
-const usersCollection = firestore().collection<User>('users');
-const userDoc = (uid: string) => usersCollection.doc(uid);
+const usersCollection = collection(db, 'users') as CollectionReference<User>;
+const userDoc = (uid: string) => doc(db, 'users', uid) as DocumentReference<User>;
 
 export { userDoc, usersCollection };
-

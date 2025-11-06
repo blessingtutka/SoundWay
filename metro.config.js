@@ -1,31 +1,13 @@
-// const path = require('path');
-// const { pathToFileURL } = require('url');
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const path = require('path');
 const { withNativeWind } = require('nativewind/metro');
+const { getDefaultConfig } = require('expo/metro-config');
 
-/**
- * Metro configuration
- * https://reactnative.dev/docs/metro
- *
- * @type {import('@react-native/metro-config').MetroConfig}
- */
+const config = getDefaultConfig(__dirname);
 
-const config = mergeConfig(getDefaultConfig(__dirname), {
-  // transformer: {
-  //   babelTransformerPath: require.resolve('nativewind/babel-transformer'),
-  // },
-  resolver: {
-    unstable_enablePackageExports: false,
-    sourceExts: [...getDefaultConfig(__dirname).resolver.sourceExts, 'css'],
-  },
-});
+config.resolver.unstable_enablePackageExports = false;
 
-// const cssPath = pathToFileURL(
-//   path.resolve(__dirname, 'src/assets/styles/global.css'),
-// ).href;
+config.resolver.alias = {
+  '@': path.resolve(__dirname, 'src'),
+};
 
-module.exports = withNativeWind(config, {
-  input: './src/assets/styles/global.css',
-});
-
-// module.exports = config;
+module.exports = withNativeWind(config, { input: './src/assets/styles/global.css' });
