@@ -1,6 +1,7 @@
 import { ScreenLayout } from '@/components/ScreenLayout';
 import { Card } from '@/components/ui/card';
 import { useUser } from '@/providers/UserProvider';
+import { useVoiceAssistant } from '@/providers/VoiceAssistanteProvider';
 import { useRouter } from 'expo-router';
 import { Mic } from 'lucide-react-native';
 import React, { useEffect } from 'react';
@@ -9,6 +10,8 @@ import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'r
 export default function HomeScreen() {
   const router = useRouter();
   const { user, isLoading, isLoggedIn } = useUser();
+
+  const { state: voiceState, startListening } = useVoiceAssistant();
 
   useEffect(() => {
     if (!isLoggedIn && !isLoading) {
@@ -34,7 +37,7 @@ export default function HomeScreen() {
         <View className='flex-col items-center'>
           <Text className='text-3xl font-bold text-[#FDB327]'>SoundWay</Text>
         </View>
-        <TouchableOpacity className=' w-[90%] h-[50%] flex-col justify-center bg-[#FDB327] rounded-lg items-center'>
+        <TouchableOpacity onPress={startListening} className=' w-[90%] h-[50%] flex-col justify-center bg-[#FDB327] rounded-lg items-center'>
           <Text className='text-3xl font-bold '>
             <Mic size={45} color={'white'} />
           </Text>
