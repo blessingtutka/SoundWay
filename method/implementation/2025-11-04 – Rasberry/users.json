@@ -1,0 +1,24 @@
+{
+  "users": [
+    {
+      "id": "user1",
+      "label": "King375",
+      "name": "King375",
+      "service_uuid": "",
+      "manuf_id": null,
+      "manuf_prefix_hex": "",
+      "tx_power": -49,
+      "path_loss_exp": 2.2
+    },
+    {
+      "id": "feelview",
+      "label": "FeelView",
+      "name": "",
+      "service_uuid": "12345678-1234-5678-1234-56789abcdef0",
+      "manuf_id": 65535,
+      "manuf_prefix_hex": "4645454C",
+      "tx_power": -52,
+      "path_loss_exp": 2.4
+    }
+  ]
+}
