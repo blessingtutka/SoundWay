@@ -1,0 +1,19 @@
+🎙️ Sous Windows
+
+Tu peux le faire sans installer de logiciel :
+
+Branche ton micro-cravate USB et attends qu’il soit reconnu.
+
+Fais un clic droit sur 🔊 l’icône du haut-parleur → choisis Sons (ou “Paramètres du son”).
+
+Va dans l’onglet Enregistrement, sélectionne ton micro, puis clique sur Propriétés.
+
+Ouvre l’onglet Écouter.
+
+Coche la case Écouter ce périphérique.
+
+Dans “Lire sur ce périphérique”, choisis tes haut-parleurs ou ton baffle.
+
+Clique sur Appliquer → OK.
+
+➡️ Résultat : ta voix sera diffusée en direct sur les haut-parleurs.
