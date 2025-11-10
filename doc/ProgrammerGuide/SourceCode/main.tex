@@ -1,0 +1,739 @@
+\documentclass[12pt,a4paper]{article}
+% pour le diagramme
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+
+% Définir les styles des blocs
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30, aspect=2]
+\tikzstyle{io} = [trapezium, trapezium stretches=true, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{arrow} = [thick,-{Stealth[length=2mm]}]
+
+\usepackage[
+  type={CC},
+  modifier={by-nd},
+  version={4.0},
+]{doclicense}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[french]{babel}
+\usepackage[a4paper]{geometry}
+\geometry{top=20mm,bottom=15mm,inner=15mm,outer=10mm}
+\DeclareUnicodeCharacter{000B}{}
+\usepackage{listings}
+\lstset{language=C,basicstyle=\ttfamily}
+\usepackage{makeidx}  % Ajout du package pour l'index
+\makeindex            % Activation de l'indexation
+\setlength{\parskip}{0.2em}
+\usepackage{hyperref}
+
+\newcommand{\rep}[1]{\fbox{$#1$}}
+
+% ===============================
+% TITRE
+% ===============================
+
+\title{Goupe 3 -- Programmer-guide \textit{SoundWay}}
+\author{Esteban BARRACHO\\
+        Anas DAMLAKHI\\
+        Jonathan KONDOLI NKEBI\\
+        Arthur SMOOS\\
+        Bénédicte TUTEKA MUKUTA}
+        
+% ===============================
+\begin{document}
+% ===============================
+
+\maketitle
+\thispagestyle{empty} % Désactiver la numérotation pour cette page si nécessaire
+\vspace*{13em}
+% Ajoute une image illustrant le schéma modèle
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{LogoUNamur.jpg}
+    \label{fig:LogoUNamur}
+\end{figure}
+\pagebreak
+
+\clearpage
+\tableofcontents
+\newpage
+
+\section{Preamble}
+\index{Introduction}This document provides a comprehensive programmer-oriented guide to \textbf{SoundWay}, a Bluetooth-based indoor navigation system developed in the framework of the course \textit{INFOM435 -- Interface Incarnée Augmentée} at the University of Namur (UNamur). The project explores embodied and augmented interaction through the combination of IoT hardware (Raspberry Pi) and a mobile Android application.
+
+SoundWay connects \textbf{BLE beacons} running on a Raspberry Pi with a \textbf{Kotlin/Jetpack Compose} Android application. The Raspberry Pi acts as an emitter above doors or key points in a building, broadcasting Bluetooth Low Energy (BLE) signals. The mobile app works as a receiver that:
+\begin{itemize}
+    \item detects and interprets BLE signals,
+    \item estimates distance using RSSI calibration,
+    \item displays the user's position on a map,
+    \item provides voice guidance using Text-to-Speech (TTS),
+    \item manages user accounts and profiles.
+\end{itemize}
+
+\index{Software features}The SoundWay ecosystem is composed of three main technical bricks:
+\begin{itemize}
+    \item a \textbf{Raspberry Pi emitter} (\texttt{Rasberry/}) that handles BLE advertising and signal calibration;
+    \item a \textbf{local debug API} (\texttt{ApiLocalADE/}) to simulate or log data and speed up development and testing;
+    \item an \textbf{Android receiver application} (package \texttt{com.example.soundway}) that integrates BLE scanning, map visualization and voice assistance.
+\end{itemize}
+
+This documentation is intended both for:
+\begin{itemize}
+    \item developers who want to understand, maintain or extend the system (e.g. add new zones, new interaction modes or new buildings),
+    \item teachers or researchers who want to reuse SoundWay as a reference implementation for embodied and augmented interaction labs.
+\end{itemize}
+
+The focus is put on:
+\begin{itemize}
+    \item code structure and modularity,
+    \item deployment and calibration procedures,
+    \item design rationales behind the architecture and technical choices,
+    \item limitations and possible future evolutions (multi-floor support, richer maps, accessibility improvements, etc.).
+\end{itemize}
+
+\pagebreak
+
+\section{The chapters}
+
+\subsection{Where would I start if I had to continue developing this software?}
+
+\subsubsection{Where are the sources?}
+
+The sources are organized into several main components in the repository:
+
+\begin{itemize}
+    \item \textbf{\texttt{Rasberry/}}: Python code and assets for the BLE emitter on Raspberry Pi.
+    \item \textbf{\texttt{ApiLocalADE/}}: optional local debug API used for calibration, logging and experimenting with indoor positioning logic.
+    \item \textbf{Android application project}: Kotlin/Jetpack Compose project (package \texttt{com.example.soundway}), usually opened with Android Studio.
+\end{itemize}
+
+From a methodological point of view, the project follows the classic triptych:
+
+\begin{itemize}
+    \item \textbf{Analysis}: course requirements, constraints of indoor navigation, accessibility goals, and early sketches of user journeys.
+    \item \textbf{Design}: interaction scenarios, placement of beacons, mapping between zones and BLE identifiers, UI wireframes for the Android app.
+    \item \textbf{Implementation}: concrete source code in Python (BLE, calibration, optional API) and Kotlin (mobile app).
+\end{itemize}
+
+\paragraph{Rasberry/ (Raspberry Pi Emitter)}
+
+This folder contains:
+
+\begin{itemize}
+    \item \texttt{Rasberry.py} : main script to broadcast BLE signals on Linux/Raspberry Pi.
+\end{itemize}
+
+\paragraph{Android Application}
+
+The Android receiver application is built with:
+
+\begin{itemize}
+    \item \textbf{Kotlin} and \textbf{Jetpack Compose} for the UI,
+    \item \textbf{Google Maps SDK} for map-based navigation,
+    \item \textbf{Text-to-Speech (TTS)} for voice guidance,
+    \item \textbf{BLE scanning} to detect beacons and compute positions.
+\end{itemize}
+
+It is available on Google Play under the package id \texttt{com.example.soundway}.  
+In the codebase, it is organized as a classic Android Studio project with modules, composables and navigation graphs.
+
+\newpage
+\subsubsection{Where's the documentation?}
+
+The primary documentation is:
+
+\begin{itemize}
+    \item the \textbf{README} and markdown files located at the root of the repository (functional overview, quick start),
+    \item this \textbf{programmer guide} in \LaTeX, which details architecture, deployment and evolution paths,
+    \item inline comments in the main scripts (\texttt{ble\_advertiser.py}, \texttt{ble\_scan\_rssi.py}, Android Kotlin files).
+\end{itemize}
+
+\subsubsection{Who were the developers?}
+
+\begin{itemize}
+    \item Esteban BARRACHO
+    \item Anas DAMLAKHI
+    \item Jonathan KONDOLI NKEBI
+    \item Arthur SMOOS
+    \item Bénédicte TUTEKA MUKUTA
+\end{itemize}
+
+\subsubsection{Where are the specifications?}
+
+The original specifications are embedded in:
+
+\begin{itemize}
+    \item the course sheet of \textit{INFOM435 -- Interface Incarnée Augmentée},
+    \item the project description and constraints provided by the teaching staff (indoor navigation, accessibility, embodied interaction),
+    \item internal notes on use cases (guiding users inside a building, helping with orientation, enabling hands-free navigation).
+\end{itemize}
+
+These documents define the pedagogical objectives (exploring IoT + mobile interactions) and functional requirements (indoor navigation, BLE-based positioning, audio feedback).
+
+\subsubsection{Who are the sponsors?}
+
+The \textbf{academic sponsor} of SoundWay is the course \textit{INFOM435 -- Interface Incarnée Augmentée} at the University of Namur. The project was carried out under the supervision of the teaching team and in the context of CSLabs, which provided the pedagogical and technical environment.
+
+The goal was not only to deliver a working prototype, but also to reflect on embodied interaction, accessibility and the integration of IoT in real buildings.
+
+\pagebreak
+
+\subsubsection{What was the development environment like?}
+
+\paragraph{Languages, editors, testing, continuous integration, etc.}
+
+The SoundWay system relies on a mixed stack combining Python and Android technologies.
+
+\begin{itemize}
+    \item \textbf{Programming languages:}
+    \begin{itemize}
+        \item Python 3.12 for BLE emission, calibration and the optional local API.
+        \item Kotlin for the Android app, with Jetpack Compose for the UI layer.
+    \end{itemize}
+
+    \item \textbf{Development environments:}
+    \begin{itemize}
+        \item Visual Studio Code / PyCharm for the Raspberry Pi and local API scripts.
+        \item Android Studio for the mobile application.
+    \end{itemize}
+
+    \item \textbf{Key libraries and SDKs:}
+    \begin{itemize}
+        \item \textbf{Bleak} for cross-platform BLE on Raspberry Pi / Windows.
+        \item Standard Python libraries for logging, JSON handling and data analysis.
+        \item \textbf{Google Maps SDK}, \textbf{Text-to-Speech}, and Android BLE APIs for the mobile app.
+    \end{itemize}
+
+    \item \textbf{Version control:} Git was used for code tracking, branches and collaboration, with the repository hosted on GitHub.
+
+    \item \textbf{Testing:} Development relied mainly on:
+    \begin{itemize}
+        \item empirical tests in real corridors and rooms,
+        \item RSSI calibration campaigns (\texttt{ble\_scan\_rssi.py}),
+        \item ad hoc logging via CSV files and debug consoles.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{How to run, deploy, test, etc.}
+
+\paragraph{Raspberry Pi Emitter (Linux)}
+
+\begin{enumerate}
+    \item Install dependencies:
+    \begin{verbatim}
+sudo apt update
+sudo apt install python3 python3-venv python3-pip bluetooth bluez
+
+cd Rasberry
+python3 -m venv venv
+source venv/bin/activate
+pip install bleak
+    \end{verbatim}
+
+    This generates logs and updates \texttt{ble\_calib.pkl}.
+
+    \item Start BLE broadcasting:
+    \begin{verbatim}
+python Rasberry.py
+    \end{verbatim}
+\end{enumerate}
+\newpage
+
+\paragraph{Android Receiver}
+
+\begin{enumerate}
+    \item Install the application from Google Play (package id \texttt{com.example.soundway}).
+    \item Create a user account inside the app.
+    \item Grant Bluetooth and Location permissions when requested.
+    \item Walk inside the instrumented building: the app detects beacons, displays your approximate position on the map and provides voice instructions.
+\end{enumerate}
+
+\paragraph{Local Debug API}
+
+To run the optional local API for debugging:
+
+\begin{enumerate}
+    \item Go to \texttt{ApiLocalADE/}.
+    \item Create and activate a virtualenv if needed.
+    \item Install dependencies:
+    \begin{verbatim}
+pip install -r requirements.txt
+    \end{verbatim}
+    \item Run:
+    \begin{verbatim}
+python main.py
+    \end{verbatim}
+    \item Use this API to replay logs, inspect RSSI behaviour or simulate beacons during Android development.
+\end{enumerate}
+
+\newpage
+
+\subsubsection{The "keys" to architecture!}
+
+\paragraph{Flowchart of the SoundWay runtime}
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.6cm]
+    \node (start) [startstop] {Start};
+    \node (initPi) [process, below of=start] {Boot Raspberry Pi};
+    \node (loadCfg) [process, below of=initPi] {Load \texttt{users.json} \& calibration};
+    \node (adv) [process, below of=loadCfg] {Start BLE advertising};
+    \node (scan) [process, below of=adv] {Android app scans for beacons};
+    \node (compute) [process, below of=scan] {Estimate distance from RSSI};
+    \node (map) [process, below of=compute] {Update map \& voice guidance};
+    \node (loop) [process, below of=map] {Wait for movement / new beacons};
+    \node (end) [startstop, below of=loop] {User reaches destination};
+
+    \draw [arrow] (start) -- (initPi);
+    \draw [arrow] (initPi) -- (loadCfg);
+    \draw [arrow] (loadCfg) -- (adv);
+    \draw [arrow] (adv) -- (scan);
+    \draw [arrow] (scan) -- (compute);
+    \draw [arrow] (compute) -- (map);
+    \draw [arrow] (map) -- (loop);
+    \draw [arrow] (loop.south) |- ++(0,-0.8) -| (scan.east);
+\end{tikzpicture}
+\end{center}
+
+\paragraph{Global architecture overview}
+
+\begin{itemize}
+    \item The \textbf{Raspberry Pi} acts as a BLE beacon emitter. It reads configuration from \texttt{users.json}, uses calibration data from \texttt{ble\_calib.pkl}, and broadcasts identifiers for each zone.
+    \item The \textbf{Android application} continuously scans for BLE beacons, filters them, estimates distances, and maps identifiers to zones displayed on a Google Map.
+    \item The \textbf{local debug API} can be inserted between both to replay scenarios or study logs without physically moving in the building.
+\end{itemize}
+
+\pagebreak
+
+\subsection{Point of view}
+
+\subsubsection{Top-down}
+
+\paragraph{Responding to specific needs}
+
+\subparagraph{The tree structure of modules and packages, with a motivation for each one}
+
+The architecture was deliberately split according to responsibilities:
+
+\begin{itemize}
+    \item \textbf{\texttt{Rasberry/}}:
+    \begin{itemize}
+        \item \texttt{Rasberry.py}: core emitter logic, responsible for broadcasting BLE packets.
+    \end{itemize}
+
+    \item \textbf{Android app (package \texttt{com.example.soundway})}:
+    \begin{itemize}
+        \item BLE layer: scanning, permissions, device filtering.
+        \item Domain layer: zone objects, distance estimation, navigation logic.
+        \item UI layer: Jetpack Compose screens, map view, voice control.
+        \item Account layer: user registration, login, profile management.
+    \end{itemize}
+\end{itemize}
+
+\subparagraph{The main components of the architecture}
+
+\begin{itemize}
+    \item \textbf{BLE Emitter}:
+    \begin{itemize}
+        \item runs continuously on the Raspberry Pi;
+        \item encodes the zone identifier in advertising packets;
+        \item relies on precomputed calibration to help distance estimation.
+    \end{itemize}
+
+    \item \textbf{Receiver + Navigation Engine (Android)}:
+    \begin{itemize}
+        \item collects RSSI values for each detected beacon;
+        \item estimates the user's zone and approximate distance;
+        \item updates map and triggers voice instructions.
+    \end{itemize}
+
+    \item \textbf{Debug \& Calibration Tools}:
+    \begin{itemize}
+        \item log fine-grained RSSI traces;
+        \item help adjust thresholds and zones;
+        \item simulate or replay navigation without a live emitter.
+    \end{itemize}
+\end{itemize}
+
+\subparagraph{Documentation on the application's run-time behaviour}
+
+At run-time, several behaviours are important:
+
+\begin{itemize}
+    \item \textbf{Dynamic calibration}: RSSI values are noisy. Logs and calibration tools help refine distance thresholds over time.
+    \item \textbf{Permission management}: the Android app must react gracefully if Bluetooth or Location permissions are disabled, by explaining to the user what to do.
+    \item \textbf{Energy impact}: BLE scanning and map rendering can consume battery; scanning intervals and filters are tuned accordingly.
+    \item \textbf{Resilience}: if no beacon is detected, the app should not crash but instead inform the user that they are out of range or in a non-instrumented area.
+\end{itemize}
+
+\pagebreak
+
+\subsection{Comment on the "motivation" behind my choices!}
+
+\subsubsection{Why things happen}
+
+The main design choices in SoundWay follow three axes:
+
+\begin{enumerate}
+    \item \textbf{Embodied interaction and accessibility}:
+    \begin{itemize}
+        \item Use of voice guidance (TTS) to help users who cannot rely solely on visual cues.
+        \item Simple, high-contrast UI through Jetpack Compose for readability.
+        \item Hands-free interaction: the user can keep the phone in a pocket and follow audio instructions.
+    \end{itemize}
+
+    \item \textbf{Simplicity and robustness on the hardware side}:
+    \begin{itemize}
+        \item Use of a Raspberry Pi and BLE beacons: inexpensive, easy to reinstall, and compatible with many environments.
+        \item Python and Bleak chosen for their portability and maturity with BLE.
+        \item Calibration and logs stored in simple formats (\texttt{pkl}, \texttt{csv}) to allow quick iteration.
+    \end{itemize}
+
+    \item \textbf{Pedagogical value and extensibility}:
+    \begin{itemize}
+        \item Clear separation between emitter, receiver and API tools, to allow students to work on different components independently.
+        \item Use of modern Android stack (Kotlin + Jetpack Compose) to align with industry practices.
+        \item Architecture that can be easily extended: multi-beacon triangulation, multi-floor support, integration of indoor maps, etc.
+    \end{itemize}
+\end{enumerate}
+
+\pagebreak
+
+\subsection{Software libraries or components}
+
+\subsubsection{Your users are developers}
+
+For developers, the most important technical components are:
+
+\begin{itemize}
+    \item \textbf{Python 3.12}: main language for the emitter and calibration tools.
+    \item \textbf{Bleak}: cross-platform BLE library used for advertising and scanning.
+    \item \textbf{Android SDK 26+}: minimum supported Android version for the app.
+    \item \textbf{Kotlin + Jetpack Compose}: used for building the UI and navigation flows.
+    \item \textbf{Google Maps SDK}: displays zones and the approximate user position on a map.
+    \item \textbf{Text-to-Speech (TTS)}: embedded Android service for voice guidance.
+\end{itemize}
+
+\subsubsection{Examples of code:}
+
+\paragraph{Increasing complexity}
+
+\textbf{Basic example (Python): starting BLE advertising}
+
+\vspace{0.5em}
+\noindent\textit{Commentaire :} ce code illustre le squelette typique de \texttt{ble\_advertiser.py} : création d’un client BLE, configuration et démarrage de l’émission.
+
+\lstset{language=Python,basicstyle=\ttfamily\scriptsize}
+\begin{verbatim}
+from bleak import BleakAdvertiser
+
+BEACON_UUID = "0000a001-0000-1000-8000-00805f9b34fb"
+ZONE_ID = 1
+
+async def main():
+    async with BleakAdvertiser() as advertiser:
+        payload = build_beacon_payload(BEACON_UUID, ZONE_ID)
+        await advertiser.start(payload)
+        print("Advertising started for zone", ZONE_ID)
+        await asyncio.Event().wait()  # Run until interrupted
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+\end{verbatim}
+\normalsize
+
+\textbf{Intermediate example (Python): logging RSSI during calibration}
+
+\vspace{0.5em}
+\noindent\textit{Commentaire :} ce fragment montre comment enregistrer les valeurs RSSI dans un fichier CSV pour pouvoir ensuite ajuster les modèles de distance.
+
+\lstset{language=Python,basicstyle=\ttfamily\scriptsize}
+\begin{verbatim}
+import csv
+from datetime import datetime
+
+def log_rssi(device_id: str, rssi: int, csv_path: str = "ble_multi_rssi_log.csv"):
+    with open(csv_path, mode="a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([datetime.now().isoformat(), device_id, rssi])
+\end{verbatim}
+\normalsize
+
+\textbf{Advanced example (Kotlin): reacting to beacon detection in the Android app}
+
+\vspace{0.5em}
+\noindent\textit{Commentaire :} ce pseudo-exemple Kotlin illustre comment la détection d’un beacon déclenche la mise à jour de la zone et de la navigation.
+
+\lstset{language=Python,basicstyle=\ttfamily\scriptsize}
+\begin{verbatim}
+// Pseudo-Kotlin for illustration
+fun onBeaconDetected(beaconId: String, rssi: Int) {
+    val zone = zoneRepository.resolveZone(beaconId)
+    val distance = distanceEstimator.estimate(rssi, zone.calibration)
+    navigationState.updatePosition(zone, distance)
+    tts.speak("Vous êtes proche de la zone ${zone.label}")
+}
+\end{verbatim}
+\normalsize
+
+\pagebreak
+
+\subsection{APIs and interaction layers}
+
+\index{API}While SoundWay is primarily based on BLE rather than HTTP APIs, several interaction layers play a similar role for developers.
+
+\subsubsection{BLE Advertising Interface}
+
+The BLE advertising interface defines:
+
+\begin{itemize}
+    \item the \textbf{payload structure} (UUID, zone identifier, optional flags),
+    \item the \textbf{advertising interval} (trade-off between responsiveness and energy),
+    \item the mapping between \textbf{zone identifiers} and physical locations (stored in \texttt{users.json}).
+\end{itemize}
+
+\subsubsection{BLE Scanning Interface (Android)}
+
+On the Android side:
+
+\begin{itemize}
+    \item the scanning layer filters by UUID and signal strength,
+    \item only relevant beacons are passed to the navigation layer,
+    \item debouncing and smoothing are applied to avoid noisy jumps.
+\end{itemize}
+
+\subsubsection{Local Debug API}
+
+The optional local API (\texttt{ApiLocalADE/}) exposes endpoints such as:
+
+\begin{itemize}
+    \item \texttt{/logs}: return a subset of recorded RSSI logs,
+    \item \texttt{/zones}: return the list of known zones and their identifiers,
+    \item \texttt{/simulate}: send fake beacon detections to the Android app for UI testing.
+\end{itemize}
+
+\subsubsection{Authentication and User Session (Android)}
+
+The Android app includes:
+
+\begin{itemize}
+    \item a basic account system (registration, login),
+    \item local persistence of user preferences (preferred language, voice speed, etc.),
+    \item optional server-side account management in future versions.
+\end{itemize}
+
+\pagebreak
+
+\subsection{Embedded code}
+
+\subsubsection{Deployment therefore deserves special attention}
+
+Although the core components are relatively lightweight, deployment involves hardware, OS configuration and mobile distribution.
+
+\begin{itemize}
+    \item \textbf{Installing Python dependencies} :
+    \begin{itemize}
+        \item use \texttt{python3 -m venv venv} and \texttt{pip install -r requirements.txt} where appropriate;
+        \item on Raspberry Pi, ensure \texttt{bluetooth} and \texttt{bluez} are installed.
+    \end{itemize}
+
+    \item \textbf{Configuring the Raspberry Pi} :
+    \begin{itemize}
+        \item enable Bluetooth in \texttt{raspi-config};
+        \item make sure the emitter script is started at boot (e.g. via \texttt{systemd} service).
+    \end{itemize}
+
+    \item \textbf{Android deployment} :
+    \begin{itemize}
+        \item the app is signed and deployed through Google Play;
+        \item for development, use Android Studio and USB debugging.
+    \end{itemize}
+
+    \item \textbf{Log management} :
+    \begin{itemize}
+        \item logs on Raspberry Pi (\texttt{ble\_multi\_rssi\_log.csv}) are essential for understanding signal behaviour;
+        \item Android logs (logcat) help to debug permission issues or BLE failures.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Hardware Matters More…}
+
+Since SoundWay is literally embodied in hardware and physical space, hardware choices have a direct impact on quality:
+
+\begin{itemize}
+    \item \textbf{Raspberry Pi model} :
+    \begin{itemize}
+        \item models with built-in BLE (e.g. Pi 3, Pi 4) are recommended;
+        \item external USB dongles can be used but must be tested thoroughly.
+    \end{itemize}
+
+    \item \textbf{Placement of beacons} :
+    \begin{itemize}
+        \item beacons should be placed at consistent heights (e.g. above doors);
+        \item metal structures and thick walls strongly affect signal propagation.
+    \end{itemize}
+
+    \item \textbf{Android phone characteristics} :
+    \begin{itemize}
+        \item BLE antenna quality and Android BLE implementation differ between devices;
+        \item it is useful to test with several phone models when calibrating.
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+\subsection{Limitations and Future Work}
+
+\subsubsection{Current technical limitations}
+
+\begin{itemize}
+    \item \textbf{RSSI instability} : BLE signal strength is highly variable, especially when users move or when there are many obstacles. Distance estimation remains approximate.
+
+    \item \textbf{Single-beacon logic} : the current prototype mostly relies on the nearest beacon rather than full multi-beacon triangulation.
+
+    \item \textbf{Static maps} : maps are pre-defined for one building; extending to multiple floors or complex layouts would require additional work.
+
+    \item \textbf{Limited test automation} : tests are mainly manual and scenario-based; there is no large automated test suite for regression.
+
+    \item \textbf{Offline behaviour} : if Google Maps is not available or if permissions are denied, the app offers limited functionality.
+\end{itemize}
+
+\subsubsection{Potential improvements}
+
+\begin{itemize}
+    \item \textbf{Triangulation and multi-beacon fusion} : combine signals from several beacons to improve accuracy, possibly with Kalman filters or particle filters.
+
+    \item \textbf{Advanced calibration} : build per-building, per-zone calibration profiles and adapt thresholds dynamically.
+
+    \item \textbf{Indoor map integration} : integrate precise indoor maps (with corridors, stairs, elevators) and compute optimal paths.
+
+    \item \textbf{Accessibility enhancements} : add haptic feedback, more detailed voice instructions, multilingual support and configuration settings.
+
+    \item \textbf{Cloud backend} : allow synchronisation of user preferences, analytics on usage, and remote configuration of zones.
+
+    \item \textbf{Automated testing} : add unit tests, integration tests and replay of recorded calibration sessions for non-regression.
+\end{itemize}
+
+\pagebreak
+
+\section{Glossary}
+
+\begin{description}
+    \item[BLE (Bluetooth Low Energy)] Wireless communication technology optimized for low-power, short-range communication. Used here for indoor positioning.
+
+    \item[Beacon] A device or script that periodically broadcasts BLE packets containing identifiers used for localization.
+
+    \item[RSSI] \textbf{Received Signal Strength Indicator}: a measure of the power present in a received radio signal. Used as a proxy for distance.
+
+    \item[Raspberry Pi] A small, affordable single-board computer used in this project to run the BLE emitter.
+
+    \item[Bleak] A Python BLE library that provides a simple API for scanning and advertising on multiple platforms.
+
+    \item[Jetpack Compose] Modern UI toolkit for building native Android interfaces in Kotlin using a declarative paradigm.
+
+    \item[Text-to-Speech (TTS)] Service that converts text into spoken voice output, enabling audio guidance for users.
+
+    \item[Zone] A logical area inside the building (e.g. corridor, room, entrance) associated with one or more beacons.
+
+    \item[Calibration] Process of measuring RSSI at known distances in order to build or adjust a model that maps signal strength to distance.
+
+    \item[Indoor Navigation] The process of guiding users inside buildings where GPS is unreliable or unavailable.
+
+    \item[ApiLocalADE] Optional local HTTP API used in SoundWay for debugging, log replay and simulation.
+
+    \item[INFOM435] Course \textit{Interface Incarnée Augmentée} at UNamur, under which SoundWay was developed.
+\end{description}
+
+\newpage
+
+\section{Bibliographie}
+
+\subsection{Further reading}
+
+\begin{thebibliography}{9}
+
+\bibitem{gattikerBLE}
+Robin Heydon.  
+\textit{Bluetooth Low Energy: The Developer's Handbook}.  
+Prentice Hall, 2013.
+
+\bibitem{rappaport}
+Theodore S. Rappaport.  
+\textit{Wireless Communications: Principles and Practice}.  
+Second edition, Prentice Hall, 2002.
+
+\bibitem{androidbignerd}
+Bill Phillips, Chris Stewart, Kristin Marsicano.  
+\textit{Android Programming: The Big Nerd Ranch Guide}.  
+Fourth edition, Big Nerd Ranch Guides, 2019.
+
+\bibitem{compose}
+Sergey Vasiliev.  
+\textit{Jetpack Compose by Example}.  
+Leanpub, 2022.
+
+\end{thebibliography}
+
+\subsection{Structures to compensate for pre-requisites}
+
+\begin{thebibliography}{9}
+
+\bibitem{pythoncookbook}
+David Beazley and Brian K. Jones.  
+\textit{Python Cookbook}.  
+Third edition, O'Reilly Media, 2013.
+
+\bibitem{blepositioning}
+Z. Farid, R. Nordin, M. Ismail.  
+``Recent advances in wireless indoor localization techniques and system.''  
+\textit{Journal of Computer Networks and Communications}, 2013.
+
+\bibitem{accessibility}
+Sarah Horton and Whitney Quesenbery.  
+\textit{A Web for Everyone: Designing Accessible User Experiences}.  
+Rosenfeld Media, 2014.
+
+\end{thebibliography}
+
+\section{Index}
+\noindent\begin{minipage}{\textwidth}
+\printindex
+\end{minipage}
+\newpage
+\section{Annexes}
+
+\subsection{Annexe A : Future Plans}
+
+In future iterations, SoundWay could evolve towards a more integrated indoor navigation platform:
+
+\begin{itemize}
+    \item \textbf{Multi-building support}: configure several buildings with their own sets of beacons, maps and calibration profiles.
+    \item \textbf{Dynamic content}: associate audio descriptions, alerts or contextual help with specific zones (e.g. elevators, exits, reception).
+    \item \textbf{Advanced analytics}: record anonymized trajectories (with consent) to optimize beacon placement and detect recurrent navigation issues.
+    \item \textbf{Integration with other systems}: link SoundWay with room booking systems, emergency evacuation plans, or campus information services.
+\end{itemize}
+
+Such extensions would preserve the core philosophy of the project: lightweight hardware, accessible interaction, and modular code that can be reused in other pedagogical or real-world contexts.
+
+\bigskip
+
+\hrule
+
+\bigskip
+
+{\small \noindent © 2025 Esteban BARRACHO, Anas DAMLAKHI, Jonathan KONDOLI NKEBI,\\
+Arthur SMOOS, Bénédicte TUTEKA MUKUTA.\\
+This document is distributed under the terms of the Creative Commons CC BY-ND (Attribution-No Derivative Works) licence. \doclicenseThis}
+
+\bigskip
+
+\hrule
+
+\end{document}
