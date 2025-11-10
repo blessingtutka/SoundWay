@@ -1,0 +1,186 @@
+time_iso,user_id,user_label,address,name,rssi_now,rssi_med,rssi_ema,dist_now,dist_med,dist_ema,zone
+2025-11-03 20:50:58,user1,King375,E4:5F:01:CB:FB:5F,King375,-60,-60,-60.0,3.162,3.162,3.162,Vibreur fort
+2025-11-03 20:51:07,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-57,-58.5,1.688,2.310,2.703,Vibreur fort
+2025-11-03 20:51:07,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-54,-57.4,1.688,1.688,2.403,Vibreur fort
+2025-11-03 20:51:15,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-56,-57.3,2.310,2.081,2.379,Vibreur fort
+2025-11-03 20:51:15,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-57,-57.2,2.310,2.310,2.362,Vibreur fort
+2025-11-03 20:51:24,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-54,-56.4,1.688,1.688,2.171,Vibreur fort
+2025-11-03 20:51:24,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-54,-55.8,1.688,1.688,2.039,Vibreur fort
+2025-11-03 20:51:31,user1,King375,E4:5F:01:CB:FB:5F,King375,-58,-54,-56.4,2.565,1.688,2.159,Vibreur fort
+2025-11-03 20:51:31,user1,King375,E4:5F:01:CB:FB:5F,King375,-58,-54,-56.8,2.565,1.688,2.254,Vibreur fort
+2025-11-03 20:59:26,user1,King375,E4:5F:01:CB:FB:5F,King375,-60,-60,-60.0,1.874,1.874,1.874,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 20:59:35,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-57,-58.5,1.000,1.369,1.602,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 20:59:35,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-54,-57.4,1.000,1.000,1.424,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 20:59:43,user1,King375,E4:5F:01:CB:FB:5F,King375,-60,-57,-58.0,1.874,1.369,1.525,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 20:59:43,user1,King375,E4:5F:01:CB:FB:5F,King375,-60,-60,-58.5,1.874,1.874,1.606,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 20:59:52,user1,King375,E4:5F:01:CB:FB:5F,King375,-53,-57,-57.1,0.901,1.369,1.389,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 20:59:52,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-54,-56.4,1.000,1.000,1.280,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 21:00:08,user1,King375,E4:5F:01:CB:FB:5F,King375,-53,-54,-55.5,0.901,1.000,1.172,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 21:00:08,user1,King375,E4:5F:01:CB:FB:5F,King375,-53,-54,-54.9,0.901,1.000,1.097,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 21:00:54,user1,King375,E4:5F:01:CB:FB:5F,King375,-78,-78,-78.0,12.328,12.328,12.328,
+2025-11-03 21:01:05,user1,King375,E4:5F:01:CB:FB:5F,King375,-68,-73,-75.5,4.329,7.305,9.490,Approche du site — vibration faible
+2025-11-03 21:01:05,user1,King375,E4:5F:01:CB:FB:5F,King375,-68,-68,-73.6,4.329,4.329,7.799,Vous arrivez à la faculté d'informatique
+2025-11-03 21:01:06,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-72,-74.5,11.103,6.579,8.519,Approche du site — vibration faible
+2025-11-03 21:01:06,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-77,-75.1,11.103,11.103,9.103,Approche du site — vibration faible
+2025-11-03 21:01:14,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-77,-76.1,13.689,11.103,10.080,Approche du site — vibration faible
+2025-11-03 21:01:14,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-77,-76.8,13.689,11.103,10.881,Approche du site — vibration faible
+2025-11-03 21:01:40,user1,King375,E4:5F:01:CB:FB:5F,King375,-62,-70,-73.1,2.310,5.337,7.386,Vous arrivez à la faculté d'informatique
+2025-11-03 21:01:49,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-70,-69.1,1.369,5.337,4.846,Vibration moyenne
+2025-11-03 21:01:49,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-62,-66.1,1.369,2.310,3.533,Vibreur fort
+2025-11-03 21:01:58,user1,King375,E4:5F:01:CB:FB:5F,King375,-52,-62,-62.5,0.811,2.310,2.446,Vibreur fort
+2025-11-03 21:01:58,user1,King375,E4:5F:01:CB:FB:5F,King375,-52,-57,-59.9,0.811,1.369,1.856,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-03 21:02:15,user1,King375,E4:5F:01:CB:FB:5F,King375,-67,-57,-61.7,3.899,1.369,2.234,Vibreur fort
+2025-11-03 21:02:15,user1,King375,E4:5F:01:CB:FB:5F,King375,-67,-57,-63.0,3.899,1.369,2.568,Vibreur fort
+2025-11-03 21:02:24,user1,King375,E4:5F:01:CB:FB:5F,King375,-67,-57,-64.0,3.899,1.369,2.850,Vibreur fort
+2025-11-03 21:02:24,user1,King375,E4:5F:01:CB:FB:5F,King375,-67,-67,-64.8,3.899,3.899,3.083,Vibreur fort
+2025-11-03 21:02:33,user1,King375,E4:5F:01:CB:FB:5F,King375,-68,-67,-65.6,4.329,3.899,3.356,Vibreur fort
+2025-11-03 21:02:33,user1,King375,E4:5F:01:CB:FB:5F,King375,-68,-67,-66.2,4.329,3.899,3.576,Vibreur fort
+2025-11-03 21:02:41,user1,King375,E4:5F:01:CB:FB:5F,King375,-68,-67,-66.6,4.329,3.899,3.751,Vibreur fort
+2025-11-03 21:02:41,user1,King375,E4:5F:01:CB:FB:5F,King375,-68,-68,-67.0,4.329,4.329,3.888,Vibreur fort
+2025-11-03 21:02:50,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-68,-70.0,13.689,4.329,5.326,Vibration moyenne
+2025-11-03 21:02:50,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-68,-72.2,13.689,4.329,6.743,Vous arrivez à la faculté d'informatique
+2025-11-03 21:02:59,user1,King375,E4:5F:01:CB:FB:5F,King375,-72,-68,-72.2,6.579,4.329,6.702,Vous arrivez à la faculté d'informatique
+2025-11-03 21:02:59,user1,King375,E4:5F:01:CB:FB:5F,King375,-72,-72,-72.1,6.579,6.579,6.671,Vous arrivez à la faculté d'informatique
+2025-11-04 10:59:55,user1,King375,E4:5F:01:CB:FB:5F,King375,-61,-61,-61.0,2.081,2.081,2.081,Vibreur fort
+2025-11-04 10:59:55,user1,King375,E4:5F:01:CB:FB:5F,King375,-66,-64,-62.2,3.511,2.848,2.371,Vibreur fort
+2025-11-04 11:00:03,user1,King375,E4:5F:01:CB:FB:5F,King375,-74,-66,-65.2,8.111,3.511,3.225,Vibreur fort
+2025-11-04 11:00:03,user1,King375,E4:5F:01:CB:FB:5F,King375,-74,-70,-67.4,8.111,5.337,4.061,Vibration moyenne
+2025-11-04 11:00:04,user1,King375,E4:5F:01:CB:FB:5F,King375,-63,-66,-66.3,2.565,3.511,3.621,Vibreur fort
+2025-11-04 11:00:04,user1,King375,E4:5F:01:CB:FB:5F,King375,-63,-64,-65.5,2.565,2.848,3.322,Vibreur fort
+2025-11-04 11:00:13,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-66,-67.9,9.006,3.511,4.262,Vibration moyenne
+2025-11-04 11:00:13,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-74,-69.6,9.006,8.111,5.139,Vibration moyenne
+2025-11-04 11:00:20,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-74,-71.0,9.006,8.111,5.913,Vibration moyenne
+2025-11-04 11:00:20,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-75,-72.0,9.006,9.006,6.569,Approche du site — vibration faible
+2025-11-04 11:00:21,user1,King375,E4:5F:01:CB:FB:5F,King375,-60,-75,-69.0,1.874,9.006,4.801,Vibration moyenne
+2025-11-04 11:00:21,user1,King375,E4:5F:01:CB:FB:5F,King375,-60,-75,-66.7,1.874,9.006,3.794,Vibreur fort
+2025-11-04 11:00:30,user1,King375,E4:5F:01:CB:FB:5F,King375,-52,-75,-63.1,0.811,9.006,2.580,Vibreur fort
+2025-11-04 11:00:30,user1,King375,E4:5F:01:CB:FB:5F,King375,-54,-60,-60.8,1.000,1.874,2.036,Vibreur fort
+2025-11-04 11:00:31,user1,King375,E4:5F:01:CB:FB:5F,King375,-52,-60,-58.6,0.811,1.874,1.617,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-04 11:00:31,user1,King375,E4:5F:01:CB:FB:5F,King375,-53,-54,-57.2,0.901,1.000,1.397,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-04 11:00:39,user1,King375,E4:5F:01:CB:FB:5F,King375,-53,-53,-56.1,0.901,0.901,1.252,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-04 11:00:40,user1,King375,E4:5F:01:CB:FB:5F,King375,-50,-52,-54.6,0.658,0.811,1.066,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-04 11:00:40,user1,King375,E4:5F:01:CB:FB:5F,King375,-52,-52,-54.0,0.811,0.811,0.996,
+2025-11-04 11:01:06,user1,King375,E4:5F:01:CB:FB:5F,King375,-83,-66,-61.2,20.806,3.511,2.129,Vibreur fort
+2025-11-04 11:01:06,user1,King375,E4:5F:01:CB:FB:5F,King375,-82,-78,-66.4,18.738,12.328,3.667,Vibreur fort
+2025-11-04 11:01:14,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-78,-68.6,9.006,12.328,4.590,Vibration moyenne
+2025-11-04 11:01:14,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-78,-70.2,9.006,12.328,5.433,Vibration moyenne
+2025-11-04 11:01:23,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-78,-71.9,11.103,12.328,6.496,Approche du site — vibration faible
+2025-11-04 11:01:23,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-77,-73.2,11.103,11.103,7.427,Approche du site — vibration faible
+2025-11-04 11:01:30,user1,King375,E4:5F:01:CB:FB:5F,King375,-71,-75,-72.6,5.926,9.006,7.019,Approche du site — vibration faible
+2025-11-04 11:01:39,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-75,-73.2,9.006,9.006,7.471,Approche du site — vibration faible
+2025-11-04 11:01:39,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-75,-73.7,9.006,9.006,7.828,Approche du site — vibration faible
+2025-11-04 11:01:41,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-75,-74.5,11.103,9.006,8.543,Vous arrivez à la faculté d'informatique
+2025-11-04 11:01:41,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-75,-75.1,11.103,9.006,9.122,Vous arrivez à la faculté d'informatique
+2025-11-04 11:01:48,user1,King375,E4:5F:01:CB:FB:5F,King375,-71,-75,-74.1,5.926,9.006,8.189,Vous arrivez à la faculté d'informatique
+2025-11-04 11:01:48,user1,King375,E4:5F:01:CB:FB:5F,King375,-71,-75,-73.3,5.926,9.006,7.553,Approche du site — vibration faible
+2025-11-04 11:01:57,user1,King375,E4:5F:01:CB:FB:5F,King375,-82,-77,-75.5,18.738,11.103,9.479,Vous arrivez à la faculté d'informatique
+2025-11-06 14:58:46,user1,King375,6C:DB:4B:83:85:5E,King375,-63,-63,-63.0,2.565,2.565,2.565,Vibreur fort
+2025-11-06 14:58:46,user1,King375,6C:DB:4B:83:85:5E,King375,-63,-63,-63.0,2.565,2.565,2.565,Vibreur fort
+2025-11-06 14:58:49,user1,King375,6C:DB:4B:83:85:5E,King375,-61,-63,-62.5,2.081,2.565,2.434,Vibreur fort
+2025-11-06 14:58:49,user1,King375,6C:DB:4B:83:85:5E,King375,-61,-62,-62.1,2.081,2.310,2.341,Vibreur fort
+2025-11-06 14:58:50,user1,King375,6C:DB:4B:83:85:5E,King375,-61,-61,-61.8,2.081,2.081,2.273,Vibreur fort
+2025-11-06 14:58:50,user1,King375,6C:DB:4B:83:85:5E,King375,-61,-61,-61.6,2.081,2.081,2.223,Vibreur fort
+2025-11-06 15:00:51,user1,King375,7F:B0:D1:FB:B7:2C,King375,-57,-57,-57.0,1.369,1.369,1.369,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:00:51,user1,King375,7F:B0:D1:FB:B7:2C,King375,-57,-57,-57.0,1.369,1.369,1.369,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:00:53,user1,King375,7F:B0:D1:FB:B7:2C,King375,-59,-57,-57.5,1.688,1.369,1.442,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:00:53,user1,King375,7F:B0:D1:FB:B7:2C,King375,-59,-58,-57.9,1.688,1.520,1.500,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:17:55,user1,King375,76:50:D5:43:1A:44,King375,-60,-60,-60.0,1.874,1.874,1.874,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:17:55,user1,King375,76:50:D5:43:1A:44,King375,-60,-60,-60.0,1.874,1.874,1.874,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:17:57,user1,King375,76:50:D5:43:1A:44,King375,-61,-60,-60.2,2.081,1.874,1.923,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:17:57,user1,King375,76:50:D5:43:1A:44,King375,-61,-60,-60.4,2.081,1.874,1.962,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:17:59,user1,King375,76:50:D5:43:1A:44,King375,-62,-61,-60.8,2.310,2.081,2.043,Vibreur fort
+2025-11-06 15:17:59,user1,King375,76:50:D5:43:1A:44,King375,-62,-61,-61.1,2.310,2.081,2.107,Vibreur fort
+2025-11-06 15:17:59,user1,King375,76:50:D5:43:1A:44,King375,-62,-61,-61.3,2.310,2.081,2.156,Vibreur fort
+2025-11-06 15:17:59,user1,King375,76:50:D5:43:1A:44,King375,-62,-62,-61.5,2.310,2.310,2.194,Vibreur fort
+2025-11-06 15:18:00,user1,King375,76:50:D5:43:1A:44,King375,-62,-62,-61.6,2.310,2.310,2.222,Vibreur fort
+2025-11-06 15:18:00,user1,King375,76:50:D5:43:1A:44,King375,-62,-62,-61.7,2.310,2.310,2.244,Vibreur fort
+2025-11-06 15:18:02,user1,King375,76:50:D5:43:1A:44,King375,-60,-62,-61.3,1.874,2.310,2.145,Vibreur fort
+2025-11-06 15:18:02,user1,King375,76:50:D5:43:1A:44,King375,-60,-62,-61.0,1.874,2.310,2.074,Vibreur fort
+2025-11-06 15:18:04,user1,King375,76:50:D5:43:1A:44,King375,-60,-62,-60.7,1.874,2.310,2.022,Vibreur fort
+2025-11-06 15:18:04,user1,King375,76:50:D5:43:1A:44,King375,-60,-60,-60.5,1.874,1.874,1.984,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-06 15:53:24,user1,King375,E4:5F:01:CB:FB:5F,King375,-89,-89,-89.0,38.986,38.986,38.986,
+2025-11-06 15:53:56,user1,King375,E4:5F:01:CB:FB:5F,King375,-63,-76,-82.5,2.565,10.000,19.745,
+2025-11-06 15:53:56,user1,King375,E4:5F:01:CB:FB:5F,King375,-63,-63,-77.6,2.565,2.565,11.854,Vous arrivez à la faculté d'informatique
+2025-11-06 15:53:57,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-69,-77.0,9.006,4.806,11.067,Vous arrivez à la faculté d'informatique
+2025-11-06 15:53:57,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-75,-76.5,9.006,9.006,10.511,Vous arrivez à la faculté d'informatique
+2025-11-06 15:54:15,user1,King375,E4:5F:01:CB:FB:5F,King375,-72,-74,-75.4,6.579,8.111,9.350,Vous arrivez à la faculté d'informatique
+2025-11-06 15:54:20,user1,King375,E4:5F:01:CB:FB:5F,King375,-73,-73,-74.8,7.305,7.305,8.790,Vous arrivez à la faculté d'informatique
+2025-11-06 15:54:20,user1,King375,E4:5F:01:CB:FB:5F,King375,-73,-73,-74.3,7.305,7.305,8.393,Vous arrivez à la faculté d'informatique
+2025-11-06 15:54:23,user1,King375,E4:5F:01:CB:FB:5F,King375,-63,-64,-71.5,2.565,2.848,6.240,Approche du site — vibration faible
+2025-11-06 15:54:32,user1,King375,E4:5F:01:CB:FB:5F,King375,-65,-64,-69.9,3.162,2.848,5.265,Vibration moyenne
+2025-11-06 15:54:32,user1,King375,E4:5F:01:CB:FB:5F,King375,-65,-64,-68.7,3.162,2.848,4.635,Vibration moyenne
+2025-11-06 15:54:41,user1,King375,E4:5F:01:CB:FB:5F,King375,-70,-65,-69.0,5.337,3.162,4.801,Vibration moyenne
+2025-11-06 15:54:59,user1,King375,E4:5F:01:CB:FB:5F,King375,-76,-70,-70.7,10.000,5.337,5.768,Vibration moyenne
+2025-11-06 15:55:17,user1,King375,E4:5F:01:CB:FB:5F,King375,-88,-76,-75.1,35.112,10.000,9.060,Vous arrivez à la faculté d'informatique
+2025-11-06 15:55:33,user1,King375,E4:5F:01:CB:FB:5F,King375,-76,-76,-75.3,10.000,10.000,9.286,Vous arrivez à la faculté d'informatique
+2025-11-06 15:55:33,user1,King375,E4:5F:01:CB:FB:5F,King375,-76,-76,-75.5,10.000,10.000,9.460,Vous arrivez à la faculté d'informatique
+2025-11-06 15:56:03,user1,King375,E4:5F:01:CB:FB:5F,King375,-83,-83,-83.0,20.806,20.806,20.806,
+2025-11-06 15:56:11,user1,King375,E4:5F:01:CB:FB:5F,King375,-88,-86,-84.2,35.112,28.480,23.714,
+2025-11-06 15:56:11,user1,King375,E4:5F:01:CB:FB:5F,King375,-88,-88,-85.2,35.112,35.112,26.159,
+2025-11-07 08:48:17,user1,King375,E4:5F:01:CB:FB:5F,King375,-71,-71,-71.0,5.926,5.926,5.926,Vibration moyenne
+2025-11-07 08:48:25,user1,King375,E4:5F:01:CB:FB:5F,King375,-76,-74,-72.2,10.000,8.111,6.754,Approche du site — vibration faible
+2025-11-07 08:48:25,user1,King375,E4:5F:01:CB:FB:5F,King375,-76,-76,-73.2,10.000,10.000,7.450,Approche du site — vibration faible
+2025-11-07 08:48:26,user1,King375,E4:5F:01:CB:FB:5F,King375,-80,-76,-74.9,15.199,10.000,8.904,Vous arrivez à la faculté d'informatique
+2025-11-07 08:48:34,user1,King375,E4:5F:01:CB:FB:5F,King375,-80,-76,-76.2,15.199,10.000,10.177,Vous arrivez à la faculté d'informatique
+2025-11-07 08:48:34,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-78,-76.9,13.689,12.328,10.960,Vous arrivez à la faculté d'informatique
+2025-11-07 08:48:52,user1,King375,E4:5F:01:CB:FB:5F,King375,-72,-76,-75.7,6.579,10.000,9.647,Vous arrivez à la faculté d'informatique
+2025-11-07 08:48:52,user1,King375,E4:5F:01:CB:FB:5F,King375,-72,-76,-74.7,6.579,10.000,8.767,Vous arrivez à la faculté d'informatique
+2025-11-07 08:48:53,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-79,-75.8,13.689,13.689,9.800,Vous arrivez à la faculté d'informatique
+2025-11-07 08:48:53,user1,King375,E4:5F:01:CB:FB:5F,King375,-79,-79,-76.6,13.689,13.689,10.654,Vous arrivez à la faculté d'informatique
+2025-11-07 08:49:09,user1,King375,E4:5F:01:CB:FB:5F,King375,-84,-79,-78.5,23.101,13.689,12.928,
+2025-11-07 08:49:11,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-79,-78.1,11.103,13.689,12.446,
+2025-11-07 08:49:11,user1,King375,E4:5F:01:CB:FB:5F,King375,-77,-79,-77.8,11.103,13.689,12.096,
+2025-11-07 08:49:19,user1,King375,E4:5F:01:CB:FB:5F,King375,-84,-79,-79.4,23.101,13.689,14.219,
+2025-11-07 08:49:36,user1,King375,E4:5F:01:CB:FB:5F,King375,-90,-84,-82.0,43.288,23.101,18.782,
+2025-11-07 08:49:36,user1,King375,E4:5F:01:CB:FB:5F,King375,-89,-84,-83.8,38.986,23.101,22.545,
+2025-11-07 08:49:46,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-84,-81.6,9.006,23.101,17.923,
+2025-11-07 08:49:46,user1,King375,E4:5F:01:CB:FB:5F,King375,-75,-77,-79.9,9.006,11.103,15.090,
+2025-11-07 08:49:53,user1,King375,E4:5F:01:CB:FB:5F,King375,-76,-77,-78.9,10.000,11.103,13.615,
+2025-11-07 08:50:02,user1,King375,E4:5F:01:CB:FB:5F,King375,-67,-76,-76.0,3.899,10.000,9.960,Vous arrivez à la faculté d'informatique
+2025-11-07 08:50:02,user1,King375,E4:5F:01:CB:FB:5F,King375,-67,-75,-73.7,3.899,9.006,7.878,Approche du site — vibration faible
+2025-11-07 08:57:56,user1,King375,E4:5F:01:CB:FB:5F,King375,-55,-55,-55.0,1.110,1.110,1.110,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:57:57,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-56,-55.5,1.369,1.233,1.170,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:57:57,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-57,-55.9,1.369,1.369,1.217,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:04,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-57,-56.2,1.369,1.369,1.253,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:04,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-57,-56.4,1.369,1.369,1.281,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:22,user1,King375,E4:5F:01:CB:FB:5F,King375,-56,-57,-56.3,1.233,1.369,1.269,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:22,user1,King375,E4:5F:01:CB:FB:5F,King375,-56,-57,-56.2,1.233,1.369,1.260,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:39,user1,King375,E4:5F:01:CB:FB:5F,King375,-56,-57,-56.2,1.233,1.369,1.253,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:39,user1,King375,E4:5F:01:CB:FB:5F,King375,-56,-56,-56.1,1.233,1.233,1.248,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:40,user1,King375,E4:5F:01:CB:FB:5F,King375,-57,-56,-56.3,1.369,1.233,1.277,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 08:58:40,user1,King375,E4:5F:01:CB:FB:5F,King375,-58,-56,-56.8,1.520,1.233,1.334,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:34:19,user1,King375,71:93:D7:87:0E:78,King375,-62,-62,-62.0,1.688,1.688,1.688,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:34:19,user1,King375,71:93:D7:87:0E:78,King375,-62,-62,-62.0,1.688,1.688,1.688,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:34:20,user1,King375,71:93:D7:87:0E:78,King375,-61,-62,-61.8,1.520,1.688,1.644,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:34:20,user1,King375,71:93:D7:87:0E:78,King375,-61,-62,-61.6,1.520,1.688,1.612,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:01,user1,King375,5F:6A:75:38:E1:99,King375,-56,-56,-56.0,0.901,0.901,0.901,
+2025-11-07 09:37:01,user1,King375,5F:6A:75:38:E1:99,King375,-56,-56,-56.0,0.901,0.901,0.901,
+2025-11-07 09:37:02,user1,King375,5F:6A:75:38:E1:99,King375,-63,-56,-57.8,1.874,0.901,1.082,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:02,user1,King375,5F:6A:75:38:E1:99,King375,-63,-60,-59.1,1.874,1.369,1.241,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:02,user1,King375,5F:6A:75:38:E1:99,King375,-58,-58,-58.8,1.110,1.110,1.207,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:02,user1,King375,5F:6A:75:38:E1:99,King375,-58,-58,-58.6,1.110,1.110,1.182,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:04,user1,King375,5F:6A:75:38:E1:99,King375,-60,-58,-58.9,1.369,1.110,1.226,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:04,user1,King375,5F:6A:75:38:E1:99,King375,-60,-60,-59.2,1.369,1.369,1.260,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:05,user1,King375,5F:6A:75:38:E1:99,King375,-62,-60,-59.9,1.688,1.369,1.356,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:05,user1,King375,5F:6A:75:38:E1:99,King375,-62,-60,-60.4,1.688,1.369,1.432,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:06,user1,King375,5F:6A:75:38:E1:99,King375,-60,-60,-60.3,1.369,1.369,1.416,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:37:06,user1,King375,5F:6A:75:38:E1:99,King375,-60,-60,-60.2,1.369,1.369,1.404,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:46:49,user1,King375,14:F6:D8:B2:41:24,King375,-65,-65,-65.0,2.310,2.310,2.310,Vibreur fort
+2025-11-07 09:46:58,user1,King375,14:F6:D8:B2:41:24,King375,-53,-59,-62.0,0.658,1.233,1.688,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:46:58,user1,King375,14:F6:D8:B2:41:24,King375,-53,-53,-59.8,0.658,0.658,1.334,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:46:59,user1,King375,14:F6:D8:B2:41:24,King375,-67,-59,-61.6,2.848,1.233,1.612,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:46:59,user1,King375,14:F6:D8:B2:41:24,King375,-67,-65,-62.9,2.848,2.310,1.859,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:08,user1,King375,14:F6:D8:B2:41:24,King375,-59,-62,-61.9,1.233,1.688,1.677,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:08,user1,King375,14:F6:D8:B2:41:24,King375,-59,-59,-61.2,1.233,1.233,1.553,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:09,user1,King375,14:F6:D8:B2:41:24,King375,-60,-59,-60.9,1.369,1.233,1.505,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:09,user1,King375,14:F6:D8:B2:41:24,King375,-60,-60,-60.7,1.369,1.369,1.470,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:17,user1,King375,14:F6:D8:B2:41:24,King375,-62,-60,-61.0,1.688,1.369,1.521,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:36,user1,King375,14:F6:D8:B2:41:24,King375,-61,-62,-61.0,1.520,1.688,1.521,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:36,user1,King375,14:F6:D8:B2:41:24,King375,-61,-62,-61.0,1.520,1.688,1.521,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:40,user1,King375,14:F6:D8:B2:41:24,King375,-61,-62,-61.0,1.520,1.688,1.521,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:40,user1,King375,14:F6:D8:B2:41:24,King375,-61,-61,-61.0,1.520,1.520,1.520,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:50,user1,King375,14:F6:D8:B2:41:24,King375,-70,-61,-63.3,3.899,1.520,1.924,"Vous êtes devant la faculté d'informatique. La porte est devant vous, elle s’ouvre en la poussant (porte double)"
+2025-11-07 09:47:50,user1,King375,14:F6:D8:B2:41:24,King375,-70,-61,-64.9,3.899,1.520,2.295,Vibreur fort
+2025-11-07 09:47:59,user1,King375,14:F6:D8:B2:41:24,King375,-83,-61,-69.5,15.199,1.520,3.682,Vibreur fort
+2025-11-07 09:48:21,user1,King375,14:F6:D8:B2:41:24,King375,-80,-70,-72.1,11.103,3.899,4.852,Vibration moyenne
+2025-11-07 09:48:21,user1,King375,14:F6:D8:B2:41:24,King375,-79,-70,-73.8,10.000,3.899,5.814,Vibration moyenne

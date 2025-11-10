@@ -1,6 +1,6 @@
 # SoundWay – Bluetooth Indoor Navigation System (License CC BY-ND 4.0 + Annex)
 [![License: CC BY-ND 4.0](https://img.shields.io/badge/License-CC%20BY--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd/4.0/)
-[![Available on Google Play](https://img.shields.io/badge/Google%20Play-Available-green.svg)](https://play.google.com/store/apps/details?id=com.example.soundway)
+[![Available on Google Play](htps://img.shields.io/badge/Google%20Play-Available-green.svg)](https://play.google.com/store/apps/details?id=com.example.soundway)
 
 This project was developed within the framework of the academic course **INFOM435 – Interface Incarnée Augmentée** at the **University of Namur (UNamur)**.  
 It was designed and implemented by a multidisciplinary student team exploring embodied and augmented interaction through IoT and mobile systems.
