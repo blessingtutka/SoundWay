@@ -1,0 +1,19 @@
+=== DEBUG – ÉVÉNEMENTS POUR LE 10/11/2025 ===
+
+--------------------------------------------------------------------------------
+Event #1
+Début      : datetime.datetime(2025, 11, 10, 23, 59, tzinfo=tzfile('Europe/Amsterdam'))
+Fin        : datetime.datetime(2025, 11, 10, 23, 59, tzinfo=tzfile('Europe/Amsterdam'))
+Location   : None
+Name       : 'Assignment 1 : DevOps case study analysis doit être rendu'
+Description: "OBJECTIVE\n\nBy group, you will analyze a case study regarding DevOps factors. You will identify factors that influence the software delivery performance of your case study. All your work will be based on the https://dora.dev/research/ [1] website.\n\nDELIVERABLE\n\nYou will submit a report that will:\n\n\t* Identify key factors in your case study: for each item of the ”Capabilities” section from the DORA website, identify the practices of your case study.\n\t* Link factors to DORA metrics: for each factor identified in the first step, identify which DORA metric(s) it is connected to and assess whether it enables or does not enable the metric(s). If a factor is absent in the case study, explain how it might impact the DORA metrics.\n\t* Define a procedure to measure the DORA metrics: Based on the factors and their impact identified in the previous steps, define a procedure for measuring each of the four DORA metrics in your case study. Describe the tools that will help you quantify these metrics.\n\nThe links between the factors and the DORA metrics should be as easy to read as possible, so you can choose the form it will take to make this possible. Be imaginative!\n\nThe evaluation criteria are available in the _Grille d'évaluation_ preview.\n \n\nLinks:\n------\n[1] https://dora.dev/research/\n"
+
+--------------------------------------------------------------------------------
+Event #2
+Début      : datetime.datetime(2025, 11, 10, 16, 10, tzinfo=tzfile('Europe/Amsterdam'))
+Fin        : datetime.datetime(2025, 11, 10, 18, 10, tzinfo=tzfile('Europe/Amsterdam'))
+Location   : 'I02 Auditoire - 147 pl'
+Name       : 'Machine learning et data mining.'
+Description: 'MA60-informatique\nMA ING Data Science\nFinalité Data science 1MA\n1MA-mathématique\n2MA-mathématique\nCertificat DATA SCIENCE\nFinalité Data Science\n1MA-physique\n1MA Software Engineering\nFrenay Benoit\nDelchevalerie Valentin\nIDASM102 Machine learning et data mining\n(Exported :09/11/2025 11:32)\n'
+
+--------------------------------------------------------------------------------

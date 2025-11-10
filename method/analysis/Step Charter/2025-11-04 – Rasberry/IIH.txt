@@ -1,0 +1,13 @@
+10.78.175.104
+10.27.44.104
+admin
+admin
+python3 ~/ble_scan_rssi.py
+
+
+Set-Location "D:\Users\Esteban BARRACHO\Downloads"
+scp admin@10.27.44.104:/home/admin/ble_scan_rssi.py .
+
+138.48.32.163
+
+pc : 138.48.33.168
