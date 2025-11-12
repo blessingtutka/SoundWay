@@ -51,7 +51,8 @@ DEFAULT_USERS = [
 ]
 
 # Adaptateur BLE par défaut Linux
-DEFAULT_ADAPTER_PATH = "/org/bluez/hci0"
+DEFAULT_ADAPTER_PATH = "/org/bluez/hci1"
+
 
 
 # Mode Debug
@@ -183,6 +184,7 @@ async def register_advertisement(
     bus: MessageBus,
     ad: Advertisement,
     adapter_path: str = DEFAULT_ADAPTER_PATH,
+    adv_params: dict | None = None,
 ) -> None:
     """Enregistre l'advertisement auprès de BlueZ.
     Parameters:
@@ -200,21 +202,19 @@ async def register_advertisement(
     proxy = bus.get_proxy_object(BLUEZ_SERVICE, adapter_path, introspection)
     adv_mgr = proxy.get_interface(LE_ADV_MGR_IFACE)
 
-    # Export de l'objet sur le bus
-    server = bus._server
-    server.export(ad.path, ad)
+    bus.export(ad.path, ad)
 
     try:
-        await adv_mgr.call_register_advertisement(ad.path, {})
+        await adv_mgr.call_register_advertisement(ad.path, adv_params or {})
         print(f"✅ Advertisement enregistré sur {ad.path}")
     except Exception as e:
         print(f"❌ Échec de l'enregistrement de l'advertisement : {e}")
-        # On retire l'objet si l'enregistrement échoue
         try:
-            server.unexport(ad.path)
+            bus.unexport(ad.path)
         except Exception:
             pass
         raise
+
 
 
 async def unregister_advertisement(
@@ -234,10 +234,11 @@ async def unregister_advertisement(
         debug_log(f"Ignoré lors de l'unregister : {e}")
     finally:
         try:
-            bus._server.unexport(ad.path)
+            bus.unexport(ad.path)
         except Exception:
             pass
         print("🛑 Advertisement arrêté.")
+
 
 
 # Construction de la config d'advertising
@@ -354,8 +355,14 @@ async def main_async(args: argparse.Namespace) -> None:
 
     print(f"🔊 Advertising en tant que : {ad_obj.properties['LocalName'] or '(sans nom)'}")
 
-    # Enregistrement BlueZ
-    await register_advertisement(bus, ad_obj, adapter_path=adapter_path)
+    adv_params = {}
+    if getattr(args, "ultrafast", False):
+        adv_params = {
+            "minInterval": Variant("q", 0x0020),
+            "maxInterval": Variant("q", 0x0030),
+        }
+
+    await register_advertisement(bus, ad_obj, adapter_path=adapter_path, adv_params=adv_params)
 
     print("▶️  Diffusion en cours. Appuyez sur Ctrl+C pour arrêter.\n")
     try:
@@ -396,6 +403,11 @@ def parse_args() -> argparse.Namespace:
         "--debug",
         action="store_true",
         help="Active le mode debug (traces détaillées).",
+    )
+    parser.add_argument(
+        "--ultrafast",
+        action="store_true",
+        help="Active l’émission BLE ultra-rapide (20–30 ms).",
     )
     return parser.parse_args()
 
