@@ -1,0 +1,105 @@
+{
+  "buildings": [
+    {
+      "id": "FACINFO",
+      "name": "Informatique",
+      "description": "The computer science building.",
+      "mainBeacon": "8C:90:2D:A1:83:8C"
+    },
+    {
+      "id": "FACSCIENCE",
+      "name": "Science Block",
+      "description": "Dedicated labs and research facilities."
+    }
+  ],
+  "rooms": [
+    {
+      "id": "I02",
+      "name": "I02",
+      "description": "Large lecture hall on the first floor.",
+      "currentActivity": "Introduction to Computer Science",
+      "floor": 1,
+      "building_id": "FACINFO"
+    },
+    {
+      "id": "S02",
+      "name": "Chemistry Lab",
+      "description": "Advanced chemistry experiments.",
+      "currentActivity": null,
+      "floor": 3,
+      "building_id": "FACSCIENCE"
+    },
+    {
+      "id": "I32",
+      "name": "I32",
+      "description": "Teaching Room",
+      "currentActivity": "AIHM",
+      "floor": 3,
+      "building_id": "FACINFO"
+    }
+  ],
+  "instructions": [
+    {
+      "id": "inst-1",
+      "step_order": 1,
+      "instruction_text": "After the elevator exit, go at your left.",
+      "room_id": "I32",
+      "building_id": "FACINFO"
+    },
+    {
+      "id": "inst-2",
+      "step_order": 2,
+      "instruction_text": "Then, at 10 feet, turn left again",
+      "room_id": "I32",
+      "building_id": "FACINFO"
+    },
+    {
+      "id": "inst-3",
+      "step_order": 1,
+      "instruction_text": "30 feet, In front of the entrance door",
+      "room_id": "S02",
+      "building_id": "FACSCIENCE"
+    }
+  ],
+  "distanceConfigs": [
+    {
+      "id": "dist-101-conf",
+      "room_id": "I02",
+      "building_id": "FACINFO",
+      "intervals": [
+        {
+          "min": 0,
+          "max": 5,
+          "level": 1
+        },
+        {
+          "min": 5,
+          "max": 15,
+          "level": 2
+        },
+        {
+          "min": 15,
+          "max": 100,
+          "level": 3
+        }
+      ]
+    },
+    {
+      "id": "dist-210-conf",
+      "room_id": "S02",
+      "building_id": "FACSCIENCE",
+      "intervals": [
+        {
+          "min": 0,
+          "max": 3,
+          "level": 1
+        },
+        {
+          "min": 3,
+          "max": 10,
+          "level": 2
+        }
+      ]
+    }
+  ]
+}
