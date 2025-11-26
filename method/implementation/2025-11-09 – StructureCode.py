@@ -1,6 +1,6 @@
 import os
 
-IGNORED_FOLDERS = {'.git', '.venv', '__pycache__', '.idea', '.mypy_cache'}
+IGNORED_FOLDERS = {'.git', '.venv', 'venv', '__pycache__', '.idea', '.mypy_cache', '.vscode'}
 
 def write_tree(dir_path, file, indent=""):
     """This function writes the directory tree structure to a given file.
@@ -38,13 +38,18 @@ def generate_structure(output_file="../../structure.txt"):
     None
     Version:
     --------
-    specification: Esteban Barracho (v.1 09/11/25)
-    implement: Esteban Barracho (v.1 09/11/25)
+    specification: Esteban Barracho (v.2 26/11/25)
+    implement: Esteban Barracho (v.2 26/11/25)
     """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(script_dir, "../.."))
 
     with open(output_file, "w", encoding="utf-8") as f:
         f.write("Structure du projet :\n\n")
-        write_tree(".", f)
+        root_name = os.path.basename(project_root.rstrip(os.sep))
+        f.write(f"{root_name}/\n")
+        write_tree(project_root, f, indent="    ")
+
 
 if __name__ == "__main__":
     generate_structure()
