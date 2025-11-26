@@ -139,9 +139,32 @@ Authors:
 ------------------------------------------------------------
 📄 License
 ------------------------------------------------------------
-This project is provided under the **Creative Commons BY-ND 4.0** license.
 
-You may share the work with attribution.  
-Modifying or distributing modified versions is **not permitted**.
+This project is distributed under the **Creative Commons Attribution–NoDerivatives 4.0 (CC BY-ND 4.0)** license.
 
-⚠️ Unauthorized modification, redistribution, or removal of attribution may result in a GitHub DMCA takedown.
+You may:
+- Share and redistribute the work with proper attribution.
+
+You may **not**:
+- Modify or distribute modified versions of the work,
+- Remove or alter attribution,
+- Reuse the name “SoundWay” or its visual identity without permission.
+
+For details, see the full license in the `LICENSE` file.
+
+### 📌 Contributions
+External contributions are accepted under the following condition:
+All submitted contributions (pull requests) are automatically licensed under  
+**CC BY-ND 4.0**, and must comply with the constraints of the license.
+
+See **`CONTRIBUTING.md`** for the full policy.
+
+### ⚠️ DMCA & Copyright Notice
+Any unauthorized reproduction, redistribution, or publication of the codebase,
+documentation, or the SoundWay application (including source code, assets, maps,
+and visual identity) may constitute a copyright violation.
+
+In case of infringement on GitHub or other platforms, a DMCA takedown request
+may be issued to the service provider.
+
+
