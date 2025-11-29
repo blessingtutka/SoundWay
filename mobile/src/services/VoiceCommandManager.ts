@@ -4,6 +4,15 @@ export interface AppFunctionInfo {
   name: string;
   description: string;
   examples: string[];
+  parameters?: { name: string; type: string; description?: string }[];
+}
+
+export interface VoiceCommand {
+  intent: string;
+  action: string;
+  parameters: Record<string, any>;
+  response: string;
+  executeCommand: boolean;
 }
 
 class VoiceCommandManager {
@@ -14,7 +23,8 @@ class VoiceCommandManager {
   static init(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-pro',
+      model: 'gemini-2.5-flash',
+
       generationConfig: {
         maxOutputTokens: 200,
         temperature: 0.3,
@@ -22,38 +32,35 @@ class VoiceCommandManager {
     });
   }
 
-  static async processCommand(
-    text: string,
-    availableFunctions: AppFunctionInfo[] = [],
-    appContext: Record<string, any> = {},
-  ) {
+  static async processCommand(text: string, availableFunctions: AppFunctionInfo[] = [], appContext: Record<string, any> = {}): Promise<VoiceCommand> {
     try {
-      // Add to conversation context
       this.conversationContext.push({
         role: 'user',
         parts: [{ text }],
       });
 
-      // Create system prompt with available functions
-      const systemPrompt = this.createSystemPrompt(
-        availableFunctions,
-        appContext,
-      );
+      const systemPrompt = this.createSystemPrompt(availableFunctions, appContext);
 
-      const result = await this.model.generateContent({
-        contents: [
-          { role: 'user', parts: [{ text: systemPrompt }] },
-          ...this.conversationContext,
+      const chat = this.model.startChat({
+        history: [
+          {
+            role: 'user',
+            parts: [{ text: systemPrompt }],
+          },
+          ...this.conversationContext.slice(-4),
         ],
+        generationConfig: {
+          maxOutputTokens: 300,
+          temperature: 0.3,
+        },
       });
 
+      const result = await chat.sendMessage(text);
       const response = await result.response;
       const responseText = response.text();
 
-      // Parse the structured response
       const command = this.parseStructuredResponse(responseText);
 
-      // Add AI response to context
       this.conversationContext.push({
         role: 'model',
         parts: [{ text: responseText }],
@@ -66,61 +73,132 @@ class VoiceCommandManager {
     }
   }
 
-  private static createSystemPrompt(
-    availableFunctions: AppFunctionInfo[],
-    appContext: Record<string, any>,
-  ): string {
+  private static createSystemPrompt(availableFunctions: AppFunctionInfo[], appContext: Record<string, any>): string {
     const functionsDescription = availableFunctions
-      .map(
-        func =>
-          `- ${func.name}: ${func.description} (Examples: ${func.examples.join(', ')})`,
-      )
-      .join('\n');
+      .map((fn) => {
+        const paramString = fn.parameters ? fn.parameters.map((p) => `- ${p.name} (${p.type}): ${p.description || ''}`).join('\n') : 'None';
 
-    return `You are a voice assistant for a mobile app. Analyze the voice command and return a JSON response.
+        return `
+Function: ${fn.name}
+Description: ${fn.description}
+Parameters:
+${paramString}
+Examples: ${fn.examples.join(', ')}
+`;
+      })
+      .join('\n\n');
 
-Available App Functions:
-${functionsDescription}
+    return `You are a voice assistant for a mobile app. Your ONLY job is to analyze the user's voice command and produce a valid JSON object.
 
-Current App Context:
-${JSON.stringify(appContext, null, 2)}
+CRITICAL RULES:
+- RESPOND WITH **ONLY RAW JSON**
+- NO markdown
+- NO code blocks
+- NO explanations
+- NO text before or after the JSON
+- The JSON MUST BE VALID and parseable.
 
-Response Format (JSON only):
+------------------------------------------------
+AVAILABLE APP FUNCTIONS (IMPORTANT)
+Each function includes:
+- name
+- description
+- parameters (with names & types)
+- examples of how users speak the command
+
+${functionsDescription || 'No functions available'}
+
+------------------------------------------------
+SYSTEM FUNCTIONS:
+- start_session: Start voice session
+- end_session: End voice session
+
+------------------------------------------------
+RESPONSE FORMAT (REQUIRED FIELDS):
 {
-  "intent": "navigation|action|information|settings|system|conversation",
+  "intent": "navigation | action | information | settings | system | conversation",
   "action": "function_name_or_system_action",
-  "parameters": {"key": "value"},
-  "response": "spoken_response_to_user",
+  "parameters": { "key": "value" },
+  "response": "short reply to user (1 sentence)",
   "executeCommand": true/false
 }
 
-Guidelines:
-- Use available functions when possible
-- Be concise and clear in responses
-- Extract parameters from user command
-- For unknown functions, set executeCommand: false
-- Handle natural language variations`;
+------------------------------------------------
+PARAMETER RULES (CRUCIAL):
+1. If the selected function has parameters, extract them from the user's input.
+2. Use **exact parameter names** exactly as provided in the function list.
+3. Follow the parameter types:
+   - string → names, labels, free text
+   - number → convert spoken numbers to numeric values
+   - boolean → yes/no, on/off
+   - object/other → infer structure from user command
+4. If a parameter cannot be extracted, either:
+   - set to null, OR
+   - omit it entirely
+   (Do NOT invent random parameter names.)
+
+------------------------------------------------
+INTENT RULES:
+- Greetings → intent: "conversation", executeCommand: false
+- "stop", "quit", "end", "close session" → action: "end_session"
+- "start", "begin", "open session" → action: "start_session"
+
+------------------------------------------------
+EXAMPLES:
+User: "hello"
+→ {"intent":"conversation","action":"greet","parameters":{},"response":"Hello! How can I help?","executeCommand":false}
+
+User: "go to the profile screen"
+→ {"intent":"navigation","action":"navigate_to_screen","parameters":{"screen":"profile"},"response":"Opening the profile screen.","executeCommand":true}
+
+User: "stop the session"
+→ {"intent":"system","action":"end_session","parameters":{},"response":"Ending voice session.","executeCommand":true}
+
+User: "start session"
+→ {"intent":"system","action":"start_session","parameters":{},"response":"Starting voice session.","executeCommand":true}
+
+------------------------------------------------
+Now analyze the user's message and output ONLY the JSON result.`;
   }
 
-  private static parseStructuredResponse(responseText: string): any {
+  private static parseStructuredResponse(responseText: string): VoiceCommand {
     try {
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
-      }
-    } catch (error) {
-      console.error('Failed to parse JSON response:', error);
-    }
+      // Clean the response text
+      const cleanedText = responseText
+        .replace(/```json\s*/g, '')
+        .replace(/```\s*/g, '')
+        .trim();
 
-    return this.createFallbackResponse(responseText);
+      // Try to find JSON in the response
+      let jsonString = cleanedText;
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[0];
+      }
+
+      const parsed = JSON.parse(jsonString);
+
+      // Validate required fields with defaults
+      return {
+        intent: parsed.intent || 'conversation',
+        action: parsed.action || 'respond',
+        parameters: parsed.parameters || {},
+        response: parsed.response || `I heard: "${cleanedText.substring(0, 50)}". How can I help?`,
+        executeCommand: parsed.executeCommand !== undefined ? parsed.executeCommand : false,
+      };
+    } catch (error) {
+      console.error('Failed to parse JSON response:', error, 'Response:', responseText);
+      return this.createFallbackResponse(responseText);
+    }
   }
 
-  private static createFallbackResponse(text: string) {
+  private static createFallbackResponse(text: string): VoiceCommand {
+    const shortText = text.length > 50 ? text.substring(0, 50) + '...' : text;
     return {
       intent: 'conversation',
       action: 'respond',
       parameters: {},
-      response: `I heard: "${text}". How can I help you with that?`,
+      response: `I heard: "${shortText}". How can I assist you?`,
       executeCommand: false,
     };
   }
