@@ -53,15 +53,19 @@ export default function HomeScreen() {
   const { state: voiceState, startSession, endSession } = useVoiceAssistant();
   const voiceUI = getVoiceAssistantUI(voiceState);
 
-  const handleMicrophonePress = () => {
-    if (!voiceState.isSessionActive) {
-      startSession();
-    } else {
-      endSession();
+  const handleMicrophonePress = async () => {
+    try {
+      if (!voiceState.isSessionActive) {
+        await startSession();
+      } else {
+        await endSession();
+      }
+    } catch (e) {
+      console.log('error: ' + e);
     }
   };
 
-  console.log(voiceState);
+  console.log('✅ Voice State Update:', voiceState);
 
   useEffect(() => {
     if (!isLoggedIn && !isLoading) {

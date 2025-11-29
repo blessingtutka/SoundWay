@@ -1,8 +1,8 @@
 import '@/assets/styles/global.css';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { NavigationProvider } from '@/providers/NavigationProvider';
 import { UserProvider, useUser } from '@/providers/UserProvider';
 import { VoiceAssistantProvider, useVoiceAssistant } from '@/providers/VoiceAssistanteProvider';
-import { ElevenLabsProvider } from '@elevenlabs/react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
@@ -51,6 +51,7 @@ function RootLayoutContent() {
       name: 'navigate_to_screen',
       description: 'Navigates to a specific screen by voice command',
       examples: ['go to login', 'open signup', 'back', 'go home'],
+      parameters: [{ name: 'screen', type: 'string', description: 'Screen name to open' }],
       handler: async ({ screen }: { screen?: string }) => {
         const lower = screen?.toLowerCase();
 
@@ -93,12 +94,12 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <UserProvider>
-      <ElevenLabsProvider>
-        <VoiceAssistantProvider assistant='google'>
+    <VoiceAssistantProvider>
+      <UserProvider>
+        <NavigationProvider>
           <RootLayoutContent />
-        </VoiceAssistantProvider>
-      </ElevenLabsProvider>
-    </UserProvider>
+        </NavigationProvider>
+      </UserProvider>
+    </VoiceAssistantProvider>
   );
 }

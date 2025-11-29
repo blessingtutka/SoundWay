@@ -1,13 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
+// import { getAuth } from 'firebase/auth';
 import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-// import {
-//   GeoFirestore,
-//   GeoCollectionReference,
-//   GeoQuery
-// } from "geofirestore";
+
+// For dev import-data and reset-data script
+// JUST DON'T USE IT, I HAVE ALREADY IMPORTED DATA
+// IF YOU WANT TO IMPORT YOUR OWN DATA YOU HAVE TO RESET AND THE IMPORT BUT DON'T PLEASE
+// use  getAuth for auth and uncommment the lines below
+// import { config } from 'dotenv';
+// import path from 'path';
+// const envPath = path.resolve(process.cwd(), '.env');
+// config({ path: envPath });
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,

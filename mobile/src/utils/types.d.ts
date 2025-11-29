@@ -75,6 +75,7 @@ interface VoiceCommand {
 interface AppFunction {
   name: string;
   description: string;
+  parameters?: { name: string; type: string; description?: string }[];
   handler: (params: any) => Promise<string>;
   examples: string[];
 }
