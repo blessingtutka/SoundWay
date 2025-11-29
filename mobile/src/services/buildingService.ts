@@ -37,7 +37,7 @@ export const RoomDataService = {
   },
 };
 
-interface RoomDetails extends Room {
+export interface RoomDetails extends Room {
   instructions: Instruction[];
   distanceConfigs: DistanceConf[];
 }
@@ -89,6 +89,31 @@ export const RoomQueryService = {
 };
 
 export const BuildingService = {
+  async getBuildingByBeacon(macAddress: string): Promise<Building | null> {
+    try {
+      // const normalizedMac = macAddress.replace(/:/g, '').toUpperCase();
+      const normalizedMac = macAddress;
+
+      const q = query(buildingsCollection, where('mainBeacon', '>=', normalizedMac), where('mainBeacon', '<=', normalizedMac + '\uf8ff'));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) return null;
+
+      const doc = snapshot.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name,
+        description: data.description || null,
+        mainBeacon: data.mainBeacon || null,
+        createdAt: data.createdAt || undefined,
+      };
+    } catch (error) {
+      console.error('Error fetching building by beacon:', error);
+      throw new Error('Failed to find building by beacon');
+    }
+  },
+
   async getAllBuildings(): Promise<Building[]> {
     const snapshot = await getDocs(buildingsCollection);
     return snapshot.docs.map((doc) => {

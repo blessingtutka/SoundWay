@@ -1,4 +1,4 @@
-import { collection, CollectionReference, doc, DocumentReference, Timestamp } from 'firebase/firestore';
+import { collection, CollectionReference, deleteDoc, doc, DocumentReference, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface User {
@@ -88,15 +88,32 @@ const elevatorsCollection = (buildingId: string) => collection(db, `buildings/${
 const elevatorDoc = (buildingId: string, elevatorId: string) =>
   doc(db, `buildings/${buildingId}/elevators/${elevatorId}`) as DocumentReference<Elevator>;
 
+// RESETING
+const deleteCollection = async (collectionPath: string): Promise<void> => {
+  const colRef = collection(db, collectionPath);
+  const snapshot = await getDocs(colRef);
+
+  const deletions = snapshot.docs.map((d) => deleteDoc(d.ref));
+  await Promise.all(deletions);
+};
+
+const resetAll = async (collectionNames: string[]): Promise<void> => {
+  for (const name of collectionNames) {
+    await deleteCollection(name);
+  }
+};
+
 export {
   buildingDoc,
   buildingsCollection,
+  deleteCollection,
   distanceConfigDoc,
   distanceConfigsCollection,
   elevatorDoc,
   elevatorsCollection,
   instructionDoc,
   instructionsCollection,
+  resetAll,
   roomDoc,
   roomsCollection,
   userDoc,
