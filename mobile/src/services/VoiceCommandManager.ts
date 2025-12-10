@@ -26,7 +26,7 @@ class VoiceCommandManager {
       model: 'gemini-2.5-flash',
 
       generationConfig: {
-        maxOutputTokens: 200,
+        maxOutputTokens: 500,
         temperature: 0.3,
       },
     });
@@ -50,7 +50,7 @@ class VoiceCommandManager {
           ...this.conversationContext.slice(-4),
         ],
         generationConfig: {
-          maxOutputTokens: 300,
+          maxOutputTokens: 500,
           temperature: 0.3,
         },
       });

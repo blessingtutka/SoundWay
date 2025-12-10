@@ -1,17 +1,7 @@
-/**
- * Stable BLE distance estimation and service. (AI USE)
- *
- * - MovingAverage (avg -> Kalman) pipeline for stable & responsive distance while moving
- * - Kalman tuned for noisy RSSI (R=measurement noise, Q=process noise)
- * - Configurable device selector (by id, name prefix, or service UUID)
- * - Safe RSSI polling + robust cleanup
- *
- */
-
 // ————— CONFIG —————
 export interface DistanceConfig {
-  txPower: number; // calibrated RSSI @ 1m
-  envFactor: number; // path-loss exponent
+  txPower: number; // calibrated RSSI at 1m
+  envFactor: number; // path-loss exponent (usually 2–3 indoors)
 }
 
 const DEFAULT_DISTANCE_CONFIG: DistanceConfig = {
@@ -19,59 +9,47 @@ const DEFAULT_DISTANCE_CONFIG: DistanceConfig = {
   envFactor: 2.3,
 };
 
-// ————— FILTERS —————
-class MovingAverage {
-  private size: number;
-  private values: number[];
-  constructor(size = 10) {
-    this.size = Math.max(1, Math.floor(size));
-    this.values = [];
+// ————— EXPONENTIAL MOVING AVERAGE —————
+class ExpMovingAverage {
+  private alpha: number;
+  private value: number | null = null;
+
+  constructor(alpha = 0.7) {
+    this.alpha = alpha;
   }
 
-  // Ignore nulls — return current average or NaN if no samples.
-  add(value: number | null): number {
-    if (value == null || Number.isNaN(value)) {
-      return this.get();
-    }
-    this.values.push(value);
-    if (this.values.length > this.size) this.values.shift();
-    return this.get();
+  add(v: number | null): number | null {
+    if (v == null) return this.value;
+    if (this.value == null) this.value = v;
+    else this.value = this.alpha * v + (1 - this.alpha) * this.value;
+    return this.value;
   }
 
-  get(): number {
-    if (this.values.length === 0) return NaN;
-    const sum = this.values.reduce((a, b) => a + b, 0);
-    return sum / this.values.length;
+  get(): number | null {
+    return this.value;
   }
 
-  clear() {
-    this.values = [];
+  reset() {
+    this.value = null;
   }
 }
 
+// ————— KALMAN FILTER —————
 class KalmanFilter {
   private R: number; // measurement noise
   private Q: number; // process noise
-  private A: number;
-  private C: number;
-  private cov: number;
-  private x: number;
+  private A = 1;
+  private C = 1;
+  private cov = NaN;
+  private x = NaN;
 
-  // Use R relatively large for noisy RSSI, Q small to allow smooth tracking.
-  constructor(R = 4.0, Q = 0.01) {
+  constructor(R = 2.0, Q = 0.05) {
     this.R = R;
     this.Q = Q;
-    this.A = 1;
-    this.C = 1;
-    this.cov = NaN;
-    this.x = NaN;
   }
 
-  // z may be NaN -> return previous estimate (or NaN if none)
   filter(z: number): number {
-    if (Number.isNaN(z)) {
-      return this.x;
-    }
+    if (Number.isNaN(z)) return this.x;
 
     if (Number.isNaN(this.x)) {
       this.x = z;
@@ -101,27 +79,24 @@ class KalmanFilter {
 
 // ————— DISTANCE CALCULATOR —————
 export class DistanceCalculator {
-  private avgFilter: MovingAverage;
+  private ema: ExpMovingAverage;
   private kalman: KalmanFilter;
   private config: DistanceConfig;
 
-  constructor(config: DistanceConfig = DEFAULT_DISTANCE_CONFIG, avgWindowSize = 8) {
+  constructor(config: DistanceConfig = DEFAULT_DISTANCE_CONFIG, emaAlpha = 0.5) {
     this.config = config;
-    this.avgFilter = new MovingAverage(avgWindowSize);
-    this.kalman = new KalmanFilter(/* R */ 4.0, /* Q */ 0.01);
+    this.ema = new ExpMovingAverage(emaAlpha);
+    this.kalman = new KalmanFilter(2, 0.05);
   }
 
-  // Accepts number | null. Returns meters or null if not computable.
   public getDistance(rawRssi: number | null): number | null {
-    if (rawRssi == null || Number.isNaN(rawRssi)) return null;
+    if (rawRssi == null) return null;
 
-    // Order: Moving Average -> Kalman
-    const avgRssi = this.avgFilter.add(rawRssi); // may be NaN if no data yet
-    const smoothed = this.kalman.filter(avgRssi);
+    const smoothRssi = this.kalman.filter(this.ema.add(rawRssi)!);
 
-    if (smoothed == null || Number.isNaN(smoothed)) return null;
+    if (smoothRssi == null || Number.isNaN(smoothRssi)) return null;
 
-    return this.rssiToDistance(smoothed);
+    return this.rssiToDistance(smoothRssi);
   }
 
   private rssiToDistance(rssi: number): number {
@@ -131,9 +106,10 @@ export class DistanceCalculator {
   }
 
   reset() {
-    this.avgFilter.clear();
+    this.ema.reset();
     this.kalman.reset();
   }
 }
 
-export const bleDistanceCalculator = new DistanceCalculator(DEFAULT_DISTANCE_CONFIG, 8);
+// ————— EXPORT INSTANCE —————
+export const bleDistanceCalculator = new DistanceCalculator(DEFAULT_DISTANCE_CONFIG, 0.5);

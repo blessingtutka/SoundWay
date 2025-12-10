@@ -1,8 +1,8 @@
+import { bleService } from '@/services/bleService';
 import { BuildingService, RoomDetails, RoomQueryService } from '@/services/buildingService';
 import { Building, DistanceConf, Instruction } from '@/services/collections';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
-import { bleService } from '../services/bleService';
 import { useVoiceAssistant } from './VoiceAssistanteProvider';
 
 // Navigation State Machine
@@ -31,7 +31,7 @@ export interface NavigationSession {
   completedAt?: Date;
   currentDistance?: number;
   proximityLevel?: number;
-  building?: Building; // Associated building
+  building?: Building;
 }
 
 export interface NavigationContextType {
@@ -43,6 +43,8 @@ export interface NavigationContextType {
   proximityLevel: number;
   connectedDevice: any | null;
   currentBuilding: Building | null;
+  logs: string[];
+  connected: boolean;
 
   // Actions
   startNavigation: (roomQuery: string, buildingId?: string) => Promise<void>;
@@ -58,26 +60,28 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<NavigationState>('idle');
   const [currentSession, setCurrentSession] = useState<NavigationSession | null>(null);
-
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentDistance, setCurrentDistance] = useState<number>(-1);
   const [proximityLevel, setProximityLevel] = useState<number>(0);
   const [connectedDevice, setConnectedDevice] = useState<any>(null);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [connected, setConnected] = useState(false);
 
   const { registerAppFunction, unregisterAppFunction, speak } = useVoiceAssistant();
   const isProcessing = useRef(false);
   const vibrationInterval = useRef<number | null>(null);
-  const lastVibrationLevel = useRef<number>(0);
+  const lastVibrationLevel = useRef<number[] | number>(0);
   const isBleInitialized = useRef(false);
 
-  // Initialize buildings with BLE device mapping
   useEffect(() => {
-    loadBuilding();
     initializeBleService();
 
+    loadBuilding();
     return () => {
-      cleanup();
+      bleService.stopAll();
+      stopVibration();
+      unregisterAppFunctions();
     };
   }, []);
 
@@ -85,23 +89,18 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (isBleInitialized.current) return;
 
     // Set up BLE callbacks
-    // bleService.setConnectionCallback((connected: boolean) => {
-    //   console.log('BLE Connection:', connected);
-    //   if (!connected) {
-    //     setConnectedDevice(null);
-    //     setCurrentBuilding(null);
-    //   }
-    // });
+    bleService.addConnectionListener((connected: boolean) => {
+      setConnected(connected);
+    });
 
-    bleService.setDeviceUpdatedCallback(async (device: any, distance: number | null) => {
+    bleService.addDeviceListener(async (device: any, distance: number | null) => {
       if (device) {
         setConnectedDevice(device);
 
         // Auto-detect building based on connected device
-        const detectedBuilding = await BuildingService.getBuildingByBeacon(device.id);
+        const detectedBuilding = await BuildingService.getBuildingByBeacon(device.name || device.id);
         if (detectedBuilding) {
           setCurrentBuilding(detectedBuilding);
-          await speak(`Connected to ${detectedBuilding.name}`).catch(console.error);
         }
       }
 
@@ -110,33 +109,28 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     });
 
-    bleService.setZoneCallback((message: string) => {
-      console.log('BLE Zone Message:', message);
-      // Handle zone-specific messages if needed
+    bleService.addZoneListener((message: string) => {
+      setLogs((prevLogs) => [...prevLogs, message]);
     });
+
+    bleService.startAutoScan();
 
     isBleInitialized.current = true;
   };
 
   const loadBuilding = async () => {
     try {
-      // Your building data with BLE device mappings
       const storedDevice = await bleService.getStoredDevice();
-
-      // Try to get stored device and auto-select building
       if (storedDevice) {
         const detectedBuilding = await BuildingService.getBuildingByBeacon(storedDevice.id);
-        if (detectedBuilding) {
-          setCurrentBuilding(detectedBuilding);
-        }
+        if (detectedBuilding) setCurrentBuilding(detectedBuilding);
       }
     } catch (err) {
       console.error('Failed to load buildings:', err);
     }
   };
 
-  const cleanup = () => {
-    stopVibration();
+  const unregisterAppFunctions = () => {
     unregisterAppFunction('start_navigation');
     unregisterAppFunction('next_step');
     unregisterAppFunction('previous_step');
@@ -144,98 +138,154 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     unregisterAppFunction('cancel_navigation');
   };
 
-  const transitionState = (newState: NavigationState) => {
-    console.log(`Navigation State: ${state} -> ${newState}`);
-    setState(newState);
-  };
+  const transitionState = (newState: NavigationState) => setState(newState);
 
-  const getProximityLevel = (distance: number, distanceConfigs: DistanceConf[]): number => {
+  const getProximityLevel = (distance: number, distanceConfigs: DistanceConf[]) => {
     if (distance < 0) return 0;
-
     for (const config of distanceConfigs) {
       for (const interval of config.intervals) {
-        if (distance >= interval.min && distance <= interval.max) {
-          return interval.level;
-        }
+        if (distance >= interval.min && distance <= interval.max) return interval.level;
       }
     }
-
     return 0;
   };
 
-  // Fixed vibration functions in NavigationProvider
-  const startVibration = (level: number) => {
+  // Replace your current startVibration function with this:
+  // const startVibration = (distance: number) => {
+  //   if (distance < 0) return;
+
+  //   // If we're already vibrating at the correct level, don't restart
+  //   const vibrationLevel = getVibrationLevel(distance);
+  //   if (vibrationLevel === lastVibrationLevel.current) {
+  //     return; // Already vibrating at correct intensity
+  //   }
+
+  //   // Stop any existing vibration
+  //   stopVibration();
+
+  //   // Update last vibration level
+  //   lastVibrationLevel.current = vibrationLevel;
+
+  //   // Define vibration patterns based on distance
+  //   let vibDuration: number;
+  //   let pauseDuration: number;
+
+  //   if (distance > 2) {
+  //     // Very far: no vibration or very mild
+  //     stopVibration();
+  //     return;
+  //     // } else if (distance > 2) {
+  //     //   // Far: gentle vibration
+  //     //   vibDuration = 1000;
+  //     //   pauseDuration = 2000;
+  //     // } else if (distance > 2) {
+  //     //   // Medium-far
+  //     //   vibDuration = 1500;
+  //     //   pauseDuration = 1500;
+  //   } else if (distance > 1.8) {
+  //     // Medium
+  //     vibDuration = 2000;
+  //     pauseDuration = 3000;
+  //   } else if (distance > 1) {
+  //     // Close
+  //     vibDuration = 3000;
+  //     pauseDuration = 1000;
+  //   } else if (distance > 0.5) {
+  //     // Very close
+  //     vibDuration = 4000;
+  //     pauseDuration = 300;
+  //   } else {
+  //     // Extremely close: maximum
+  //     vibDuration = 5000;
+  //     pauseDuration = 0;
+  //   }
+
+  //   // Start vibrating immediately
+  //   Vibration.vibrate(vibDuration);
+
+  //   // Set up interval for continuous vibration
+  //   vibrationInterval.current = setInterval(() => {
+  //     Vibration.vibrate(vibDuration);
+  //   }, vibDuration + pauseDuration);
+  // };
+
+  // // Helper function to determine vibration level
+  // const getVibrationLevel = (distance: number): number => {
+  //   if (distance > 2) return 0;
+  //   if (distance > 1.8) return 1;
+  //   if (distance > 1) return 2;
+  //   if (distance > 0.5) return 3;
+  //   return 4; // Very close
+  // };
+
+  const startVibration = async (distance: number) => {
+    if (distance < 0) return;
+
     stopVibration();
 
-    if (level === 0) return;
+    // Announce arrival if very close
+    if (distance <= 0.2) {
+      await speak('You arrived at your destination.');
+      return;
+    }
 
-    const patterns = {
-      1: [300, 1500], // 300ms vibration, 1500ms pause
-      2: [400, 800], // 400ms vibration, 800ms pause
-      3: [500, 400], // 500ms vibration, 400ms pause
+    // Map distance → vibration intensity (0-255)
+    const getIntensity = (distance: number) => {
+      if (distance > 2) return 0; // no vibration
+      const maxIntensity = 255;
+      const minDistance = 0.2; // closest
+      const maxDistance = 2; // farthest
+      const scaled = ((maxDistance - distance) / (maxDistance - minDistance)) * maxIntensity;
+      return Math.round(Math.min(Math.max(scaled, 50), maxIntensity)); // clamp 50–255
     };
 
-    const pattern = patterns[level as keyof typeof patterns] || [300, 1000];
+    const intensity = getIntensity(distance);
 
-    // Ensure vibration duration is positive
-    const vibrationDuration = Math.max(1, pattern[0]); // Minimum 1ms
-    const pauseDuration = Math.max(1, pattern[1]); // Minimum 1ms
+    // Map distance → vibration pattern (duration in ms)
+    const getPattern = (distance: number): number[] => {
+      if (distance > 1.8) return [100, 1000]; // light
+      if (distance > 1) return [150, 300, 150, 300]; // medium
+      if (distance > 0.5) return [200, 200, 200, 200, 200, 200]; // strong
+      return [100, 100, 100, 100, 100, 100]; // very strong
+    };
 
+    const pattern = getPattern(distance);
+
+    lastVibrationLevel.current = pattern;
+
+    // Use simple pattern-based vibration for both platforms
+    Vibration.vibrate(pattern);
+
+    const patternDuration = pattern.reduce((a, b) => a + b, 0);
     vibrationInterval.current = setInterval(() => {
-      // Double-check duration is positive before vibrating
-      if (vibrationDuration > 0) {
-        Vibration.vibrate(vibrationDuration);
-      }
-    }, vibrationDuration + pauseDuration);
+      Vibration.vibrate(pattern);
+    }, patternDuration);
+  };
+
+  // const stopVibration = () => {
+  //   if (vibrationInterval.current) clearInterval(vibrationInterval.current);
+  //   Vibration.cancel();
+  // };
+
+  // Helper: map distance → vibration level
+  const getVibrationLevel = (distance: number): number => {
+    if (distance > 2) return 0;
+    if (distance > 1.8) return 1;
+    if (distance > 1) return 2;
+    if (distance > 0.5) return 3;
+    return 4;
   };
 
   const stopVibration = () => {
-    if (vibrationInterval.current) {
-      clearInterval(vibrationInterval.current);
-      vibrationInterval.current = null;
-    }
-    // Cancel any ongoing vibration
+    if (vibrationInterval.current) clearInterval(vibrationInterval.current);
+    vibrationInterval.current = null;
     Vibration.cancel && Vibration.cancel();
   };
 
   const updateDistance = async (distance: number) => {
     setCurrentDistance(distance);
-
-    if (currentSession && state === 'navigation_in_progress') {
-      const newProximityLevel = getProximityLevel(distance, currentSession.room.distanceConfigs);
-      setProximityLevel(newProximityLevel);
-
-      const updatedSession: NavigationSession = {
-        ...currentSession,
-        currentDistance: distance,
-        proximityLevel: newProximityLevel,
-      };
-      setCurrentSession(updatedSession);
-
-      if (newProximityLevel !== lastVibrationLevel.current) {
-        lastVibrationLevel.current = newProximityLevel;
-
-        if (newProximityLevel > 0) {
-          startVibration(newProximityLevel);
-          transitionState('approaching_destination');
-
-          if (newProximityLevel === 1) {
-            await speak("You're getting closer to your destination.").catch(console.error);
-          } else if (newProximityLevel === 3) {
-            await speak("You're very close to your destination now.").catch(console.error);
-          }
-        } else {
-          stopVibration();
-          transitionState('navigation_in_progress');
-        }
-      }
-
-      const closestConfig = currentSession.room.distanceConfigs[0]?.intervals[0];
-      if (closestConfig && distance >= Math.max(0, closestConfig.min) && distance <= closestConfig.max) {
-        await speak('You have arrived at your destination!').catch(console.error);
-        completeNavigation();
-      }
-    }
+    // if (!currentSession) return;
+    startVibration(distance);
   };
 
   const startNavigation = async (roomQuery: string): Promise<void> => {
@@ -247,24 +297,26 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     stopVibration();
 
     try {
-      const targetBuilding = currentBuilding;
+      console.log('Current building:', currentBuilding);
 
-      if (!targetBuilding) {
-        await speak(`No building with soundway tech found`).catch(console.error);
+      if (!currentBuilding) {
+        await speak(`No building with soundway tech found`);
         return;
       }
 
-      await speak(`Searching for ${roomQuery} in ${targetBuilding.name}...`);
+      await speak(`Searching for ${roomQuery} in ${currentBuilding.name}...`);
 
-      const roomDetails = await RoomQueryService.getRoomDetails(targetBuilding.id, roomQuery);
+      const roomDetails = await RoomQueryService.getRoomDetails(currentBuilding.id, 'I32');
+      // const roomDetails = await RoomQueryService.getRoomDetails(currentBuilding.id, roomQuery);
 
       if (!roomDetails) {
         transitionState('room_not_found');
-        await speak(`Sorry, I couldn't find ${roomQuery} in ${targetBuilding.name}. Please try a different room name.`);
+        await speak(`Sorry, I couldn't find ${roomQuery} in ${currentBuilding.name}. Please try a different room name.`);
         return;
       }
 
       transitionState('room_found');
+      console.log('Room details:', roomDetails);
 
       const navigationSteps: NavigationStep[] = roomDetails.instructions
         .sort((a, b) => a.step_order - b.step_order)
@@ -281,7 +333,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         startedAt: new Date(),
         currentDistance: -1,
         proximityLevel: 0,
-        building: targetBuilding,
+        building: currentBuilding,
       };
 
       setCurrentSession(session);
@@ -503,8 +555,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     registerVoiceCommands();
-    return () => cleanup();
-  }, []);
+    return () => unregisterAppFunctions();
+  }, [currentBuilding]);
 
   const contextValue: NavigationContextType = {
     // State
@@ -515,7 +567,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     currentDistance,
     proximityLevel,
     connectedDevice,
-
+    logs,
+    connected,
     // Actions
     startNavigation,
     nextStep,

@@ -1,52 +1,32 @@
 import { ScreenLayout } from '@/components/ScreenLayout';
 import { Card } from '@/components/ui/card';
 import { useNavigation } from '@/providers/NavigationProvider';
-import { useVoiceAssistant } from '@/providers/VoiceAssistanteProvider';
-import { bleService } from '@/services/bleService';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { handleZoneText } from '../services/ZoneManager';
 
 export default function DeviceScreen() {
-  const [logs, setLogs] = useState<string[]>([]);
-  const [connected, setConnected] = useState(false);
-  const [device, setDevice] = useState<any>(null);
-  const [distance, setDistance] = useState<any>(null);
-  const { currentSession, state, currentDistance, proximityLevel, nextStep, previousStep, cancelNavigation, currentBuilding } = useNavigation();
+  const {
+    currentSession,
+    connectedDevice,
+    connected,
+    logs,
+    state,
+    currentDistance,
+    proximityLevel,
+    nextStep,
+    previousStep,
+    cancelNavigation,
+    currentBuilding,
+  } = useNavigation();
 
-  const { speak } = useVoiceAssistant();
-
-  useEffect(() => {
-    async () => {
-      if (connected) {
-        await speak(`Connected to soundway device${currentBuilding ? ` of ${currentBuilding.name}` : ''}`);
-      } else {
-        await speak('Disconnected from soundway device');
-      }
-    };
-  }, [connected]);
-
-  useEffect(() => {
-    (async () => {
-      bleService.setZoneCallback(async (msg) => {
-        const parsed = await handleZoneText(msg);
-        setLogs((s) => [`${new Date().toLocaleTimeString()}: ${parsed}`, ...s].slice(0, 200));
-      });
-
-      bleService.setConnectionCallback((c) => setConnected(c));
-
-      bleService.setDeviceUpdatedCallback((device, distance) => {
-        setDevice(device);
-        setDistance(distance);
-      });
-
-      bleService.startAutoScan();
-    })();
-
-    return () => {
-      bleService.stopAll();
-    };
-  }, []);
+  // const getShow = async () => {
+  //   if (currentBuilding) {
+  //     roomDetails = await RoomQueryService.getRoomDetails(currentBuilding.id, 'I32');
+  //     console.log(roomDetails);
+  //   } else {
+  //     console.log('Okay');
+  //   }
+  // };
 
   const getStateColor = (state: string) => {
     switch (state) {
@@ -81,8 +61,44 @@ export default function DeviceScreen() {
     <ScreenLayout>
       <Card className='w-[90%] h-[90vh] flex flex-col justify-center items-center bg-dark-trans self-center rounded-lg shadow-sm p-6 gap-4'>
         {/* Navigation Session Status */}
+
+        {/* Device Status Section */}
+        <View className='w-full flex gap-3 mb-4'>
+          <Text className='text-2xl text-green-600 text-center'>{connectedDevice ? 'Device Found' : 'Scanning...'}</Text>
+          <Text className={`text-2xl text-center ${connected ? 'text-green-600' : 'text-red-600'}`}>{connected ? 'Connected' : 'Not Connected'}</Text>
+
+          {/* Current Building Info */}
+          {currentBuilding && (
+            <View className='bg-purple-900 p-3 rounded mt-2'>
+              <Text className='text-white text-center font-semibold'>Current Building: {currentBuilding.name}</Text>
+              {currentBuilding.description && <Text className='text-gray-300 text-center text-sm'>{currentBuilding.description}</Text>}
+            </View>
+          )}
+        </View>
+
+        {/* Device Details */}
+        <View className='w-full'>
+          <Text className='text-white text-lg text-center mb-2'>Connected Device</Text>
+
+          {connectedDevice ? (
+            <View className='border border-gray-400 p-3 rounded bg-gray-800'>
+              <Text className='text-gray-400 text-sm'>Device ID:</Text>
+              <Text className='text-white text-xs mb-2'>{connectedDevice.id}</Text>
+
+              <Text className='text-gray-400 text-sm'>Device Name:</Text>
+              <Text className='text-white text-lg mb-2'>{connectedDevice.name || connectedDevice.localName || 'BLE Device'}</Text>
+
+              <Text className='text-gray-400 text-sm'>Distance:</Text>
+              <Text className='text-white text-lg'>{currentDistance ? `${currentDistance.toFixed(2)}m` : 'N/A'}</Text>
+            </View>
+          ) : (
+            <Text className='text-white text-center'>No device found</Text>
+          )}
+        </View>
+
+        {/* Logs Section */}
         {currentSession && (
-          <View className='w-full mb-4 p-4 bg-blue-900 rounded-lg'>
+          <View className='w-full bg-blue-950 mb-4 p-4 rounded-lg'>
             <Text className='text-white text-lg font-bold text-center'>Active Navigation Session</Text>
 
             <View className='mt-2'>
@@ -131,7 +147,7 @@ export default function DeviceScreen() {
             </View>
 
             {/* Navigation Controls */}
-            <View className='mt-3 flex-row justify-between space-x-2'>
+            <View className='mt-3 flex-row gap-2 justify-between'>
               <TouchableOpacity
                 className='flex-1 bg-blue-600 py-2 rounded disabled:bg-blue-800'
                 onPress={previousStep}
@@ -177,56 +193,6 @@ export default function DeviceScreen() {
             </ScrollView>
           </View>
         )}
-
-        {/* Device Status Section */}
-        <View className='w-full flex gap-3 mb-4'>
-          <Text className='text-2xl text-green-600 text-center'>{device ? 'Device Found' : 'Scanning...'}</Text>
-          <Text className={`text-2xl text-center ${connected ? 'text-green-600' : 'text-red-600'}`}>{connected ? 'Connected' : 'Not Connected'}</Text>
-
-          {/* Current Building Info */}
-          {currentBuilding && (
-            <View className='bg-purple-900 p-3 rounded mt-2'>
-              <Text className='text-white text-center font-semibold'>Current Building: {currentBuilding.name}</Text>
-              {currentBuilding.description && <Text className='text-gray-300 text-center text-sm'>{currentBuilding.description}</Text>}
-            </View>
-          )}
-        </View>
-
-        {/* Device Details */}
-        <View className='w-full'>
-          <Text className='text-white text-lg text-center mb-2'>Connected Device</Text>
-
-          {device ? (
-            <View className='border border-gray-400 p-3 rounded bg-gray-800'>
-              <Text className='text-gray-400 text-sm'>Device ID:</Text>
-              <Text className='text-white text-xs mb-2'>{device.id}</Text>
-
-              <Text className='text-gray-400 text-sm'>Device Name:</Text>
-              <Text className='text-white text-lg mb-2'>{device.name || device.localName || 'BLE Device'}</Text>
-
-              <Text className='text-gray-400 text-sm'>Distance:</Text>
-              <Text className='text-white text-lg'>{distance ? `${distance.toFixed(2)}m` : 'N/A'}</Text>
-            </View>
-          ) : (
-            <Text className='text-white text-center'>No device found</Text>
-          )}
-        </View>
-
-        {/* Logs Section */}
-        <View className='w-full h-[30%] mt-4'>
-          <Text className='text-white text-lg mb-2'>Zone Logs</Text>
-          <ScrollView className='bg-black p-2 rounded'>
-            {logs.length > 0 ? (
-              logs.map((log, i) => (
-                <Text key={i} className='text-white text-xs mb-1'>
-                  {log}
-                </Text>
-              ))
-            ) : (
-              <Text className='text-gray-400 text-center'>No zone messages received</Text>
-            )}
-          </ScrollView>
-        </View>
 
         {/* Overall Status */}
         {!currentSession && (
