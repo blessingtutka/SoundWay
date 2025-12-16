@@ -2,14 +2,17 @@ import * as Localization from 'expo-localization';
 import * as Speech from 'expo-speech';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { PermissionsAndroid, Platform, Vibration } from 'react-native';
-import VoiceCommandManager, { AppFunctionInfo } from '../services/VoiceCommandManager';
+import { PermissionsAndroid, Platform } from 'react-native';
+
+import VoiceCommandManager, { AppFunctionInfo } from '@/services/VoiceCommandManager';
+
+type VoiceAssistantProviderProps = {
+  children: React.ReactNode;
+};
 
 const VoiceAssistantContext = createContext<VoiceAssistantContextType | undefined>(undefined);
 
-export const VoiceAssistantProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
+export const VoiceAssistantProvider = ({ children }: VoiceAssistantProviderProps) => {
   const [state, setState] = useState<VoiceAssistantState>({
     status: 'disconnected',
     isSessionActive: false,
@@ -20,25 +23,25 @@ export const VoiceAssistantProvider: React.FC<{
   });
 
   const [functions, setFunctions] = useState<Map<string, AppFunction>>(new Map());
-  const debounceTimer = useRef<number | null>(null);
 
-  const isProcessingCommand = useRef(false);
+  const debounceTimer = useRef<NodeJS.Timeout | number | null>(null);
+
+  const processingRef = useRef(false);
   const isSpeaking = useRef(false);
+  const speechInProgress = useRef<Promise<void> | null>(null);
 
   const GOOGLE_AI_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY || '';
 
   const locales = Localization.getLocales();
   const safeLanguage = locales[0]?.languageTag || 'en-US';
 
-  // init
+  // Initialize
   useEffect(() => {
-    if (GOOGLE_AI_API_KEY) {
-      VoiceCommandManager.init(GOOGLE_AI_API_KEY);
-    }
+    if (GOOGLE_AI_API_KEY) VoiceCommandManager.init(GOOGLE_AI_API_KEY);
 
     return () => {
       Speech.stop();
-      stopListening();
+      stopSTT();
     };
   }, [GOOGLE_AI_API_KEY]);
 
@@ -51,39 +54,31 @@ export const VoiceAssistantProvider: React.FC<{
     setState((s) => ({ ...s, isListening: false }));
   });
 
-  useSpeechRecognitionEvent('result', (event) => {
-    // Don't process results while speaking
-    if (isSpeaking.current) return;
-
-    const text = event.results[0]?.transcript;
-    if (!text) return;
-
-    setState((s) => ({
-      ...s,
-      recognizedText: text,
-    }));
-
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    // Wait for the user to stop speaking (800–1200 ms)
-    debounceTimer.current = setTimeout(() => {
-      if (!isProcessingCommand.current && !isSpeaking.current && text.trim()) {
-        processVoiceCommand(text.trim());
-      }
-    }, 1000);
-  });
-
   useSpeechRecognitionEvent('error', (event) => {
     setState((s) => ({
       ...s,
-      error: event.message || 'Speech recognition error',
       isListening: false,
+      error: event.message ?? 'Speech recognition error',
     }));
   });
 
-  // Mic permissions
+  useSpeechRecognitionEvent('result', (event) => {
+    const text = event.results?.[0]?.transcript;
+    if (!text) return;
+
+    setState((s) => ({ ...s, recognizedText: text }));
+    console.log('✅ recognizedText:', text);
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current as NodeJS.Timeout);
+
+    debounceTimer.current = setTimeout(async () => {
+      if (!processingRef.current && !isSpeaking.current && text.trim()) {
+        processCommand(text.trim());
+      }
+    }, 1500);
+  });
+
+  // Permission request
   const requestMicPermission = async () => {
     try {
       if (Platform.OS === 'android') {
@@ -91,87 +86,71 @@ export const VoiceAssistantProvider: React.FC<{
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       }
 
-      const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-      return result.granted;
+      const res = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      return res.granted;
     } catch {
       return false;
     }
   };
 
-  // STT start
-  const startListening = async () => {
+  // STT control
+  const startSTT = async () => {
     try {
       if (isSpeaking.current) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        return startListening();
+        await speechInProgress.current;
       }
 
       const hasPermission = await requestMicPermission();
       if (!hasPermission) {
-        setState((s) => ({
-          ...s,
-          error: 'Microphone permission denied',
-        }));
+        setState((s) => ({ ...s, error: 'Microphone permission denied' }));
         return false;
       }
 
-      ExpoSpeechRecognitionModule.start({
-        lang: safeLanguage,
-        interimResults: true,
-        continuous: true,
-      });
-
-      return true;
-    } catch {
-      setState((s) => ({
-        ...s,
-        error: 'Failed to start speech recognition',
-        isListening: false,
-      }));
+      try {
+        ExpoSpeechRecognitionModule.start({
+          lang: safeLanguage,
+          interimResults: true,
+          continuous: true,
+        });
+        return true;
+      } catch (err) {
+        console.error('STT start error:', err);
+        setState((s) => ({ ...s, error: 'Failed to start speech recognition' }));
+        return false;
+      }
+    } catch (err) {
+      console.error('Error waiting for speech to finish:', err);
       return false;
     }
   };
 
-  // STT stop
-  const stopListening = () => {
+  const stopSTT = () => {
     try {
-      isSpeaking.current = false;
-      isProcessingCommand.current = false;
-
+      processingRef.current = false;
       ExpoSpeechRecognitionModule.stop();
-      ExpoSpeechRecognitionModule.abort && ExpoSpeechRecognitionModule.abort();
-      ExpoSpeechRecognitionModule.destroy && ExpoSpeechRecognitionModule.destroy();
-
       setState((s) => ({ ...s, isListening: false }));
-    } catch (e) {
-      console.warn('Stop listening error', e);
+    } catch {
+      // silent expected STT stop errors
     }
   };
 
-  // CMD process
-  const processVoiceCommand = async (text: string) => {
-    if (isProcessingCommand.current || !text.trim() || isSpeaking.current) return;
+  // COMMAND PROCESSING
+  const processCommand = async (text: string) => {
+    if (processingRef.current || !text.trim() || isSpeaking.current) return;
 
-    isProcessingCommand.current = true;
+    processingRef.current = true;
 
     try {
-      const funcs: AppFunctionInfo[] = Array.from(functions.values()).map((fn) => ({
+      const metadata: AppFunctionInfo[] = [...functions.values()].map((fn) => ({
         name: fn.name,
         description: fn.description,
         examples: fn.examples,
         parameters: fn.parameters,
       }));
 
-      const command = await VoiceCommandManager.processCommand(text, funcs, {});
+      const command = await VoiceCommandManager.processCommand(text, metadata, {});
 
-      setState((s) => ({
-        ...s,
-        lastResponse: command.response,
-        error: null,
-      }));
-
-      // Stop listening before speaking
-      stopListening();
+      setState((s) => ({ ...s, lastResponse: command.response, error: null }));
 
       if (command.executeCommand) {
         await executeCommand(command);
@@ -179,131 +158,207 @@ export const VoiceAssistantProvider: React.FC<{
         await speak(command.response);
       }
 
-      Vibration.vibrate(100);
-
+      // Restart listening after processing
       if (state.isSessionActive) {
         setTimeout(() => {
           if (state.isSessionActive && !isSpeaking.current) {
-            startListening();
+            startSTT();
           }
         }, 500);
       }
     } catch (err: any) {
-      const msg = `Command processing error: ${err.message}`;
-      setState((s) => ({ ...s, error: msg }));
+      setState((s) => ({
+        ...s,
+        error: `Command processing error: ${err.message}`,
+      }));
+      // Still restart listening on error
+      if (state.isSessionActive) {
+        setTimeout(() => startSTT(), 500);
+      }
     } finally {
-      isProcessingCommand.current = false;
+      processingRef.current = false;
     }
   };
 
-  // CMD exec
+  // COMMAND EXECUTION
   const executeCommand = async (cmd: VoiceCommand) => {
     const fn = functions.get(cmd.action);
 
     if (fn) {
       const result = await fn.handler(cmd.parameters);
-      const responseText = cmd.response || result;
-      if (responseText) {
-        await speak(responseText);
+      if (cmd.response || result) {
+        await speak(cmd.response || result || '');
       }
       return;
     }
 
     switch (cmd.action) {
       case 'start_session':
-        await startSession();
-        break;
+        return startSession();
       case 'end_session':
-        await endSession();
-        break;
+        return endSession();
       default:
         console.warn('Unknown action:', cmd.action);
+        if (cmd.response) {
+          await speak(cmd.response);
+        }
     }
   };
 
-  //TTS
+  // TTS - Fixed implementation
   const speak = async (text: string): Promise<void> => {
-    if (!text.trim() || isSpeaking.current) return;
+    if (!text.trim()) return Promise.resolve();
+
+    console.log('TTS speaking:', text);
+
+    // Stop any ongoing speech and STT
+    Speech.stop();
+    stopSTT();
 
     isSpeaking.current = true;
-    Speech.stop();
 
-    return new Promise<void>((resolve) => {
-      Speech.speak(text, {
-        language: safeLanguage,
-        rate: 0.9,
-        pitch: 1.0,
-        onDone: () => {
-          isSpeaking.current = false;
-          resolve();
-        },
-        onError: () => {
-          isSpeaking.current = false;
-          resolve();
-        },
-        onStart: () => {
-          stopListening();
-        },
-      });
+    return new Promise<void>((resolve, reject) => {
+      const onDone = () => {
+        isSpeaking.current = false;
+        speechInProgress.current = null;
+        console.log('TTS finished');
+        resolve();
+      };
+
+      const onError = (error: any) => {
+        isSpeaking.current = false;
+        speechInProgress.current = null;
+        console.error('TTS error:', error);
+        setState((s) => ({
+          ...s,
+          error: `TTS error: ${error.message || 'Unknown error'}`,
+        }));
+        reject(error);
+      };
+
+      try {
+        // Store the promise
+        speechInProgress.current = new Promise((resolve, reject) => {
+          const speechOptions = {
+            language: safeLanguage,
+            rate: 0.9,
+            pitch: 1.0,
+            onDone: () => {
+              onDone();
+              resolve();
+            },
+            onStopped: onDone,
+            onError: (error: any) => {
+              onError(error);
+              reject(error);
+            },
+          };
+
+          Speech.speak(text, speechOptions);
+        });
+
+        // Return the promise
+        return speechInProgress.current;
+      } catch (error: any) {
+        onError(error);
+        return Promise.reject(error);
+      }
     });
   };
 
-  // Sessions
+  // SESSION CONTROL
   const startSession = async () => {
-    console.log('Starting voice session…');
+    console.log('Starting voice session...');
 
-    await speak('Starting voice session…').catch(console.error);
-
-    const ok = await startListening();
-    if (!ok) {
-      setState((s) => ({
-        ...s,
-        error: 'Failed to start listening',
-      }));
-      return;
-    }
-
+    // Set connecting state first
     setState((s) => ({
       ...s,
+      status: 'connecting',
       isSessionActive: true,
-      status: 'connected',
       error: null,
     }));
+
+    try {
+      // Start TTS first
+      await speak('Voice assistant session started. How can I help you?');
+
+      // Then start STT
+      const ok = await startSTT();
+
+      if (ok) {
+        setState((s) => ({
+          ...s,
+          status: 'connected',
+          isSessionActive: true,
+          error: null,
+        }));
+      } else {
+        setState((s) => ({
+          ...s,
+          status: 'disconnected',
+          isSessionActive: false,
+        }));
+      }
+    } catch (error) {
+      console.error('Error starting session:', error);
+      setState((s) => ({
+        ...s,
+        status: 'disconnected',
+        isSessionActive: false,
+        error: 'Failed to start session',
+      }));
+    }
   };
 
   const endSession = async () => {
-    isProcessingCommand.current = false;
-    isSpeaking.current = false;
+    console.log('Ending voice session...');
 
-    Speech.stop();
-    stopListening();
+    setState((s) => ({
+      ...s,
+      status: 'disconnecting',
+    }));
 
-    setState({
-      status: 'disconnected',
-      isSessionActive: false,
-      isListening: false,
-      recognizedText: '',
-      lastResponse: '',
-      error: null,
-    });
+    try {
+      // Stop everything first
+      Speech.stop();
+      stopSTT();
+      ExpoSpeechRecognitionModule.abort();
 
-    await speak('Voice session ended.');
+      // Wait a bit before speaking goodbye
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // Speak goodbye (optional - you can remove this if it's causing issues)
+      try {
+        await speak('Voice assistant session ended. Goodbye!');
+      } catch {
+        // Ignore TTS errors during shutdown
+      }
+    } finally {
+      setState({
+        status: 'disconnected',
+        isSessionActive: false,
+        isListening: false,
+        recognizedText: '',
+        lastResponse: '',
+        error: null,
+      });
+    }
   };
 
-  // App functions
+  // APP FUNCTION REGISTRATION
   const registerAppFunction = (fn: AppFunction) => {
     setFunctions((prev) => {
-      const map = new Map(prev);
-      map.set(fn.name, fn);
-      return map;
+      const m = new Map(prev);
+      m.set(fn.name, fn);
+      return m;
     });
   };
 
   const unregisterAppFunction = (name: string) => {
     setFunctions((prev) => {
-      const map = new Map(prev);
-      map.delete(name);
-      return map;
+      const m = new Map(prev);
+      m.delete(name);
+      return m;
     });
   };
 
@@ -311,9 +366,9 @@ export const VoiceAssistantProvider: React.FC<{
     <VoiceAssistantContext.Provider
       value={{
         state,
+        speak,
         startSession,
         endSession,
-        speak,
         registerAppFunction,
         unregisterAppFunction,
       }}
@@ -323,6 +378,7 @@ export const VoiceAssistantProvider: React.FC<{
   );
 };
 
+// HOOK
 export const useVoiceAssistant = () => {
   const ctx = useContext(VoiceAssistantContext);
   if (!ctx) throw new Error('useVoiceAssistant must be used within VoiceAssistantProvider');

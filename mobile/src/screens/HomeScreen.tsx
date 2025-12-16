@@ -65,8 +65,6 @@ export default function HomeScreen() {
     }
   };
 
-  console.log('✅ Voice State Update:', voiceState);
-
   useEffect(() => {
     if (!isLoggedIn && !isLoading) {
       Alert.alert('Error', 'Please Login');

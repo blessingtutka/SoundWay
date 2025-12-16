@@ -15,7 +15,7 @@ import { BleError, BleManager, Device } from 'react-native-ble-plx';
 // Scan/connect timing
 const SCAN_MS = 4000;
 const CONNECTION_RETRY_MS = 2000;
-const RSSI_POLL_MS = 1000;
+const RSSI_POLL_MS = 250;
 
 // Targeting options
 const TARGET_DEVICE_ID = process.env.EXPO_PUBLIC_TARGET_BLE_ID || '';
@@ -40,22 +40,31 @@ class BleService {
   private stopRequested = false;
 
   // Callbacks for react native component update
-  onZoneMessage: ((msg: string) => void) | null = null;
-  onConnectionState: ((connected: boolean) => void) | null = null;
-  onDeviceUpdated: ((device: Device | null, distance: number | null) => void) | null = null;
+  // onZoneMessage: ((msg: string) => void) | null = null;
+  // onConnectionState: ((connected: boolean) => void) | null = null;
+  // onDeviceUpdated: ((device: Device | null, distance: number | null) => void) | null = null;
+
+  private deviceListeners = new Set<(device: Device | null, distance: number | null) => void>();
+  private connectionListeners = new Set<(connected: boolean) => void>();
+  private zoneListeners = new Set<(msg: string) => void>();
 
   constructor() {
     this.manager = new BleManager();
   }
 
-  setZoneCallback(cb: (msg: string) => void) {
-    this.onZoneMessage = cb;
+  addDeviceListener(cb: (device: Device | null, distance: number | null) => void) {
+    this.deviceListeners.add(cb);
+    return () => this.deviceListeners.delete(cb);
   }
-  setConnectionCallback(cb: (connected: boolean) => void) {
-    this.onConnectionState = cb;
+
+  addConnectionListener(cb: (connected: boolean) => void) {
+    this.connectionListeners.add(cb);
+    return () => this.connectionListeners.delete(cb);
   }
-  setDeviceUpdatedCallback(cb: (device: Device | null, distance: number | null) => void) {
-    this.onDeviceUpdated = cb;
+
+  addZoneListener(cb: (msg: string) => void) {
+    this.zoneListeners.add(cb);
+    return () => this.zoneListeners.delete(cb);
   }
 
   private async requestPermissions() {
@@ -99,7 +108,8 @@ class BleService {
       this.manager.stopDeviceScan();
     } catch {}
     this.connectedDevice = null;
-    this.onConnectionState?.(false);
+    // this.onConnectionState?.(false);
+    this.connectionListeners.forEach((cb) => cb(false));
     bleDistanceCalculator.reset();
   }
 
@@ -128,7 +138,10 @@ class BleService {
 
         // const soundwayDevice = device.id === '8C:90:2D:A1:83:8C';
 
-        const soundwayDevice = device.name === 'King375';
+        console.log('Scanned device:', device.id, device.name);
+        const soundwayDevice = device.id === '40:8E:2C:46:C3:96';
+
+        // const soundwayDevice = device.name === 'King375';
 
         if (!soundwayDevice) return;
 
@@ -174,14 +187,14 @@ class BleService {
           await connected.discoverAllServicesAndCharacteristics();
 
           this.connectedDevice = connected;
-          this.onConnectionState?.(true);
-
+          // this.onConnectionState?.(true);
+          this.connectionListeners.forEach((cb) => cb(true));
           await this.storeDevice(connected);
 
           const initialRssi = bestEntry.lastRssi ?? bestEntry.bestRssi ?? null;
           const initialDistance = initialRssi == null ? null : bleDistanceCalculator.getDistance(initialRssi);
-          this.onDeviceUpdated?.(connected, initialDistance);
-
+          // this.onDeviceUpdated?.(connected, initialDistance);
+          this.deviceListeners.forEach((cb) => cb(connected, initialDistance));
           this.subscribeCharacteristic(connected).catch((e) => console.warn('subscribe failed', e));
           this.startRssiMonitoring(connected);
 
@@ -198,6 +211,18 @@ class BleService {
     }
   }
 
+  private async handleDeviceDisconnect() {
+    console.warn('Device disconnected, restarting scan...');
+    this.connectedDevice = null;
+    this.connectionListeners.forEach((cb) => cb(false));
+    bleDistanceCalculator.reset();
+
+    // Restart auto-scan
+    if (!this.stopRequested) {
+      await this.startAutoScan();
+    }
+  }
+
   /**
    * Store the latest connected device to AsyncStorage (always kept)
    */
@@ -210,7 +235,6 @@ class BleService {
       };
 
       await AsyncStorage.setItem(STORAGE_KEYS, JSON.stringify(deviceInfo));
-      console.log('Latest Soundway device saved to storage:', deviceInfo);
     } catch (error) {
       console.warn('Failed to save latest device to AsyncStorage:', error);
     }
@@ -249,7 +273,8 @@ class BleService {
             decoded = '';
           }
         }
-        if (decoded) this.onZoneMessage?.(decoded);
+        if (decoded) this.zoneListeners.forEach((cb) => cb(decoded));
+        //this.onZoneMessage?.(decoded);
       });
     } catch (e) {
       console.warn('subscribeCharacteristic failed:', e);
@@ -266,8 +291,14 @@ class BleService {
           clearInterval(this.rssiInterval);
           this.rssiInterval = null;
           this.connectedDevice = null;
-          this.onConnectionState?.(false);
+          // this.onConnectionState?.(false);
+          this.connectionListeners.forEach((cb) => cb(false));
           bleDistanceCalculator.reset();
+
+          // if complicated remove
+          if (!this.stopRequested) {
+            await this.startAutoScan();
+          }
           return;
         }
 
@@ -276,7 +307,8 @@ class BleService {
         const rssi = updated.rssi ?? null;
         const dist = bleDistanceCalculator.getDistance(rssi);
 
-        this.onDeviceUpdated?.(device, dist);
+        // this.onDeviceUpdated?.(device, dist);
+        this.deviceListeners.forEach((cb) => cb(device, dist));
       } catch (err) {
         console.warn('RSSI read failed:', err);
       }

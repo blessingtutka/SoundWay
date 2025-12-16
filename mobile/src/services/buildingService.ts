@@ -14,7 +14,7 @@ import { buildingDoc, distanceConfigDoc, instructionDoc, roomDoc } from './colle
 
 import { db } from './firebase';
 
-import { or, orderBy } from 'firebase/firestore';
+import { orderBy } from 'firebase/firestore';
 
 export const RoomDataService = {
   async getDistanceConfigs(buildingId: string, roomId: string): Promise<DistanceConf[]> {
@@ -26,7 +26,6 @@ export const RoomDataService = {
   },
 
   async getInstructions(buildingId: string, roomId: string): Promise<Instruction[]> {
-    // order instructions by step_order
     const q = query(instructionsCollection(buildingId, roomId), orderBy('step_order', 'asc'));
 
     const snapshot = await getDocs(q);
@@ -46,23 +45,25 @@ export const RoomQueryService = {
   async getRoom(buildingId: string, value: string): Promise<Room | null> {
     const col = roomsCollection(buildingId);
 
-    const q = query(
-      col,
-      or(
-        where('name', '>=', value),
-        where('name', '<=', value + '\uf8ff'),
-        where('currentActivity', '>=', value),
-        where('currentActivity', '<=', value + '\uf8ff'),
-        where('description', '>=', value),
-        where('description', '<=', value + '\uf8ff'),
-      ),
-    );
+    const queries = [
+      query(col, where('name', '>=', value), where('name', '<=', value + '\uf8ff')),
+      query(col, where('currentActivity', '>=', value), where('currentActivity', '<=', value + '\uf8ff')),
+      query(col, where('description', '>=', value), where('description', '<=', value + '\uf8ff')),
+    ];
 
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      const doc = snap.docs[0];
-      const { id: _, ...data } = doc.data();
-      return { id: doc.id, ...data };
+    try {
+      const snapshots = await Promise.all(queries.map((q) => getDocs(q)));
+
+      for (const snap of snapshots) {
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          const { id: _, ...data } = doc.data();
+          return { id: doc.id, ...data };
+        }
+      }
+    } catch (error) {
+      console.error('Error querying rooms:', error);
+      return null;
     }
 
     return null;
