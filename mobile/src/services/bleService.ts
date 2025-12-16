@@ -139,9 +139,9 @@ class BleService {
         // const soundwayDevice = device.id === '8C:90:2D:A1:83:8C';
 
         console.log('Scanned device:', device.id, device.name);
-        const soundwayDevice = device.id === '40:8E:2C:46:C3:96';
+        // const soundwayDevice = device.id === '40:8E:2C:46:C3:96';
 
-        // const soundwayDevice = device.name === 'King375';
+        const soundwayDevice = device.name === 'King375';
 
         if (!soundwayDevice) return;
 

@@ -150,98 +150,17 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return 0;
   };
 
-  // Replace your current startVibration function with this:
-  // const startVibration = (distance: number) => {
-  //   if (distance < 0) return;
-
-  //   // If we're already vibrating at the correct level, don't restart
-  //   const vibrationLevel = getVibrationLevel(distance);
-  //   if (vibrationLevel === lastVibrationLevel.current) {
-  //     return; // Already vibrating at correct intensity
-  //   }
-
-  //   // Stop any existing vibration
-  //   stopVibration();
-
-  //   // Update last vibration level
-  //   lastVibrationLevel.current = vibrationLevel;
-
-  //   // Define vibration patterns based on distance
-  //   let vibDuration: number;
-  //   let pauseDuration: number;
-
-  //   if (distance > 2) {
-  //     // Very far: no vibration or very mild
-  //     stopVibration();
-  //     return;
-  //     // } else if (distance > 2) {
-  //     //   // Far: gentle vibration
-  //     //   vibDuration = 1000;
-  //     //   pauseDuration = 2000;
-  //     // } else if (distance > 2) {
-  //     //   // Medium-far
-  //     //   vibDuration = 1500;
-  //     //   pauseDuration = 1500;
-  //   } else if (distance > 1.8) {
-  //     // Medium
-  //     vibDuration = 2000;
-  //     pauseDuration = 3000;
-  //   } else if (distance > 1) {
-  //     // Close
-  //     vibDuration = 3000;
-  //     pauseDuration = 1000;
-  //   } else if (distance > 0.5) {
-  //     // Very close
-  //     vibDuration = 4000;
-  //     pauseDuration = 300;
-  //   } else {
-  //     // Extremely close: maximum
-  //     vibDuration = 5000;
-  //     pauseDuration = 0;
-  //   }
-
-  //   // Start vibrating immediately
-  //   Vibration.vibrate(vibDuration);
-
-  //   // Set up interval for continuous vibration
-  //   vibrationInterval.current = setInterval(() => {
-  //     Vibration.vibrate(vibDuration);
-  //   }, vibDuration + pauseDuration);
-  // };
-
-  // // Helper function to determine vibration level
-  // const getVibrationLevel = (distance: number): number => {
-  //   if (distance > 2) return 0;
-  //   if (distance > 1.8) return 1;
-  //   if (distance > 1) return 2;
-  //   if (distance > 0.5) return 3;
-  //   return 4; // Very close
-  // };
-
   const startVibration = async (distance: number) => {
     if (distance < 0) return;
 
     stopVibration();
 
-    // Announce arrival if very close
+    // Yeah, you've arrived
     if (distance <= 0.2) {
       await speak('You arrived at your destination.');
       return;
     }
 
-    // Map distance → vibration intensity (0-255)
-    const getIntensity = (distance: number) => {
-      if (distance > 2) return 0; // no vibration
-      const maxIntensity = 255;
-      const minDistance = 0.2; // closest
-      const maxDistance = 2; // farthest
-      const scaled = ((maxDistance - distance) / (maxDistance - minDistance)) * maxIntensity;
-      return Math.round(Math.min(Math.max(scaled, 50), maxIntensity)); // clamp 50–255
-    };
-
-    const intensity = getIntensity(distance);
-
-    // Map distance → vibration pattern (duration in ms)
     const getPattern = (distance: number): number[] => {
       if (distance > 1.8) return [100, 1000]; // light
       if (distance > 1) return [150, 300, 150, 300]; // medium
@@ -260,20 +179,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     vibrationInterval.current = setInterval(() => {
       Vibration.vibrate(pattern);
     }, patternDuration);
-  };
-
-  // const stopVibration = () => {
-  //   if (vibrationInterval.current) clearInterval(vibrationInterval.current);
-  //   Vibration.cancel();
-  // };
-
-  // Helper: map distance → vibration level
-  const getVibrationLevel = (distance: number): number => {
-    if (distance > 2) return 0;
-    if (distance > 1.8) return 1;
-    if (distance > 1) return 2;
-    if (distance > 0.5) return 3;
-    return 4;
   };
 
   const stopVibration = () => {
